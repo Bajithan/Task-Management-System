@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const userModel = require('../models/user.model');
 const { generateToken } = require('../utils/jwt');
-const { sendResetEmail } = require('../utils/email');
+//const { sendResetEmail } = require('../utils/email');
 const { CLIENT_URL } = require('../config/env');
 
 const login = async (email, password) => {

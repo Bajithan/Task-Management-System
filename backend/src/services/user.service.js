@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const userModel = require('../models/user.model');
-const { sendWelcomeEmail } = require('../utils/email');
+//const { sendWelcomeEmail } = require('../utils/email');
 
 const createUser = async ({ first_name, last_name, email, role }) => {
   const existing = await userModel.findByEmail(email);
