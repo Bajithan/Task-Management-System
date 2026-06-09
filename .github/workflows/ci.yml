@@ -14,11 +14,16 @@ jobs:
         working-directory: ./backend
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-node@v3
         with:
           node-version: '20'
-      - run: npm install
-      - run: npx jest --passWithNoTests
+
+      - name: Install backend dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npx --yes jest --passWithNoTests
 
   frontend-build:
     runs-on: ubuntu-latest
@@ -27,8 +32,13 @@ jobs:
         working-directory: ./frontend
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-node@v3
         with:
           node-version: '20'
-      - run: npm install
-      - run: npm run build
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
