@@ -2,10 +2,10 @@
 const express = require('express');
 const router = express.Router();
 const CommentController = require('../controllers/comment.controller');
-const authMiddleware = require('../middlewares/auth.middleware'); // Member 1 built this to check passwords!
+const { authenticate } = require('../middlewares/auth.middleware'); // Pulling out the exact tool Member 1 built!
 
 // Require the user to be logged in for all comment actions
-router.use(authMiddleware);
+router.use(authenticate);
 
 // The Map: Connects URLs to your Controller functions
 router.post('/', CommentController.addComment);
