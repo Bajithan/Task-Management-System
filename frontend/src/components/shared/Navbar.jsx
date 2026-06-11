@@ -2,7 +2,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 // MEMBER 4 — import NotificationBell here after your branch merges:
-// import NotificationBell from '../notifications/NotificationBell';
+import NotificationBell from '../notifications/NotificationBell';
 
 const Navbar = ({ title }) => {
   const { user, logout } = useAuth();
@@ -17,8 +17,10 @@ const Navbar = ({ title }) => {
     <div style={styles.navbar}>
       <h2 style={styles.title}>{title || 'Task Management System'}</h2>
       <div style={styles.right}>
+        
         {/* MEMBER 4 — place NotificationBell here: */}
-        {/* <NotificationBell /> */}
+        <NotificationBell />
+        
         <span style={styles.userInfo}>
           {user?.first_name} {user?.last_name} ({user?.role})
         </span>
