@@ -63,8 +63,9 @@ const NotificationBell = () => {
         try {
             await markAsRead(notifId);
             // Update our list to visually show it as read immediately
+            // FIXED: Changed n.id to n.notification_id
             setNotifications(notifications.map(n => 
-                n.id === notifId ? { ...n, is_read: true } : n
+                n.notification_id === notifId ? { ...n, is_read: true } : n
             ));
         } catch (error) {
             console.error("Failed to mark as read", error);
@@ -112,8 +113,9 @@ const NotificationBell = () => {
                         <ul style={{ listStyle: 'none', margin: '0', padding: '0' }}>
                             {notifications.map((notif) => (
                                 <li 
-                                    key={notif.id} 
-                                    onClick={() => handleNotificationClick(notif.id)}
+                                    // FIXED: Changed notif.id to notif.notification_id
+                                    key={notif.notification_id} 
+                                    onClick={() => handleNotificationClick(notif.notification_id)}
                                     style={{ 
                                         padding: '10px', borderBottom: '1px solid #eee', 
                                         cursor: 'pointer', 
