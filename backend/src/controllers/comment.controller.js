@@ -4,10 +4,15 @@ const CommentService = require('../services/comment.service');
 // Handle incoming request to add a comment
 const addComment = async (req, res) => {
     try {
-        const { taskId, text } = req.body; // Data sent from the frontend
-        const userId = req.user.id; // The logged-in user's ID
-        
-        const newComment = await CommentService.addComment(taskId, userId, text);
+        const { taskId, task_id, text } = req.body; // Data sent from the frontend
+        const resolvedTaskId = taskId ?? task_id;
+        const userId = req.user.user_id; // The logged-in user's ID from auth payload
+
+        if (!resolvedTaskId) {
+            return res.status(400).json({ error: 'taskId is required' });
+        }
+
+        const newComment = await CommentService.addComment(resolvedTaskId, userId, text);
         res.status(201).json(newComment); // Send the new comment back to the frontend
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -30,7 +35,7 @@ const getComments = async (req, res) => {
 const deleteComment = async (req, res) => {
     try {
         const { commentId } = req.params;
-        const userId = req.user.id;
+        const userId = req.user.user_id;
         const userRole = req.user.role; // Used to check if they are an Admin
         
         await CommentService.deleteComment(commentId, userId, userRole);

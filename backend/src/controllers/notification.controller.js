@@ -4,7 +4,7 @@ const NotificationService = require('../services/notification.service');
 // Get all notifications for the logged-in user
 const getUserNotifications = async (req, res) => {
     try {
-        const userId = req.user.id; 
+        const userId = req.user.user_id; 
         const notifications = await NotificationService.getUserNotifications(userId);
         res.status(200).json(notifications);
     } catch (error) {
@@ -26,7 +26,7 @@ const markAsRead = async (req, res) => {
 // Mark all notifications as read at once
 const markAllAsRead = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user.user_id;
         const result = await NotificationService.markAllAsRead(userId);
         res.status(200).json({ message: 'All notifications marked as read', result });
     } catch (error) {
