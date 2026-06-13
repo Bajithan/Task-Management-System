@@ -37,7 +37,7 @@ const NotificationsPage = () => {
         try {
             await markAsRead(id);
             setNotifications(notifications.map(n => 
-                n.id === id ? { ...n, is_read: true } : n
+                n.notification_id === id ? { ...n, is_read: true } : n
             ));
         } catch (error) {
             console.error("Error marking as read:", error);
@@ -71,8 +71,8 @@ const NotificationsPage = () => {
                 ) : (
                     notifications.map(notif => (
                         <div 
-                            key={notif.id} 
-                            onClick={() => handleMarkRead(notif.id)} 
+                            key={notif.notification_id} 
+                            onClick={() => handleMarkRead(notif.notification_id)} 
                             style={{
                                 padding: '15px',
                                 marginBottom: '10px',

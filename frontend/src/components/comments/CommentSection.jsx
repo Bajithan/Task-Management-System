@@ -47,7 +47,7 @@ const CommentSection = ({ taskId }) => {
         try {
             await deleteComment(commentId);
             // Remove the deleted comment from the screen instantly
-            setComments(comments.filter(comment => comment.id !== commentId));
+            setComments(comments.filter(comment => comment.comment_id !== commentId));
         } catch (error) {
             console.error("Error deleting comment:", error);
             alert("You are not allowed to delete this comment.");
@@ -66,14 +66,14 @@ const CommentSection = ({ taskId }) => {
                     <p>No comments yet. Be the first!</p>
                 ) : (
                     comments.map((comment) => (
-                        <div key={comment.id} style={{ padding: '10px', backgroundColor: '#f9f9f9', marginBottom: '10px', borderRadius: '5px' }}>
+                        <div key={comment.comment_id} style={{ padding: '10px', backgroundColor: '#f9f9f9', marginBottom: '10px', borderRadius: '5px' }}>
                             <strong>User {comment.user_id}</strong>
                             <span style={{ fontSize: '0.8em', color: 'gray', marginLeft: '10px' }}>
                                 {new Date(comment.created_at).toLocaleString()}
                             </span>
                             <p style={{ margin: '5px 0' }}>{comment.text}</p>
                             <button 
-                                onClick={() => handleDelete(comment.id)}
+                                onClick={() => handleDelete(comment.comment_id)}
                                 style={{ color: 'red', border: 'none', background: 'none', cursor: 'pointer', padding: '0' }}
                             >
                                 Delete

@@ -4,7 +4,7 @@ const supabase = require('../config/db');
 // 1. Create a new notification
 const createNotification = async (data) => {
     const { data: notification, error } = await supabase
-        .from('notifications')
+        .from('Notifications')
         .insert([{ 
             message: data.message, 
             user_id: data.user_id 
@@ -18,7 +18,7 @@ const createNotification = async (data) => {
 // 2. Find all notifications for a specific user
 const findByUser = async (userId) => {
     const { data: notifications, error } = await supabase
-        .from('notifications')
+        .from('Notifications')
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false }); // Shows newest notifications at the top
@@ -30,9 +30,9 @@ const findByUser = async (userId) => {
 // 3. Mark a specific notification as read
 const markRead = async (notificationId) => {
     const { data, error } = await supabase
-        .from('notifications')
+        .from('Notifications')
         .update({ is_read: true }) // Changes the unread status
-        .eq('id', notificationId)
+        .eq('notification_id', notificationId)
         .select();
         
     if (error) throw error;
@@ -42,7 +42,7 @@ const markRead = async (notificationId) => {
 // 4. Mark all notifications as read for a user
 const markAllRead = async (userId) => {
     const { data, error } = await supabase
-        .from('notifications')
+        .from('Notifications')
         .update({ is_read: true })
         .eq('user_id', userId)
         .select();
