@@ -4,7 +4,7 @@ const supabase = require('../config/db'); // Brings in our database connection
 // 1. Create a new comment
 const createComment = async (data) => {
     const { data: comment, error } = await supabase
-        .from('comments')
+        .from('Comments')
         .insert([{ 
             text: data.text, 
             task_id: data.task_id, 
@@ -19,7 +19,7 @@ const createComment = async (data) => {
 // 2. Find all comments for a specific task
 const findByTask = async (taskId) => {
     const { data: comments, error } = await supabase
-        .from('comments')
+        .from('Comments')
         .select('*')
         .eq('task_id', taskId)
         .order('created_at', { ascending: true }); // Shows oldest to newest
@@ -31,9 +31,9 @@ const findByTask = async (taskId) => {
 // 3. Delete a comment
 const deleteComment = async (commentId) => {
     const { error } = await supabase
-        .from('comments')
+        .from('Comments')
         .delete()
-        .eq('id', commentId);
+        .eq('comment_id', commentId);
         
     if (error) throw error;
     return true;
