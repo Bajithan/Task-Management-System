@@ -12,6 +12,8 @@ import ProtectedRoute from './components/shared/ProtectedRoute';
 import NotificationsPage from './pages/NotificationsPage';
 
 // MEMBER 5 — import DashboardPage and ProfilePage here
+import DashboardPage from './pages/dashboard/DashboardPage';
+import ProfilePage from './pages/dashboard/ProfilePage';
 
 function App() {
   return (
