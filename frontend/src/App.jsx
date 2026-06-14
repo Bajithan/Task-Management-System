@@ -5,7 +5,8 @@ import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import UserManagementPage from './pages/users/UserManagementPage';
 import ProtectedRoute from './components/shared/ProtectedRoute';
 
-// MEMBER 2 — import ProjectsListPage and ProjectDetailPage here
+import ProjectsListPage from './pages/projects/ProjectsListPage';
+import ProjectDetailPage from './pages/projects/ProjectDetailPage';
 // MEMBER 3 — import TasksPage, KanbanBoardPage, TaskDetailPage here
 
 // MEMBER 4 — import NotificationsPage here
@@ -27,8 +28,8 @@ function App() {
           <Route path="/users" element={<UserManagementPage />} />
           
           {/* MEMBER 2 — add your routes here */}
-          {/* <Route path="/projects" element={<ProjectsListPage />} /> */}
-          {/* <Route path="/projects/:id" element={<ProjectDetailPage />} /> */}
+          { <Route path="/projects" element={<ProjectsListPage />} /> }
+          {<Route path="/projects/:id" element={<ProjectDetailPage />} /> }
           
           {/* MEMBER 3 — add your routes here */}
           {/* <Route path="/tasks" element={<TasksPage />} /> */}
