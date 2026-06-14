@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const authenticate = require('../middlewares/auth.middleware');
-const allowRoles = require('../middlewares/rbac.middleware');
+const { authenticate } = require('../middlewares/auth.middleware');
+const { allowRoles } = require('../middlewares/rbac.middleware');
 const projectController = require('../controllers/project.controller');
 
 /**
