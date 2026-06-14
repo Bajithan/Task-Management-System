@@ -5,48 +5,48 @@ async function createProject(req, res) {
   try {
     const projectData = {
       ...req.body,
-      created_by: req.user.user_id, // comes from auth middleware (JWT payload)
+      created_by: req.user.user_id,
     };
     const project = await projectService.createProject(projectData);
-    return res.status(201).json(successResponse('Project created', project));
+    return successResponse(res, project, 'Project created', 201);
   } catch (err) {
-    return res.status(err.statusCode || 500).json(errorResponse(err.message));
+    return errorResponse(res, err.message, err.statusCode || 500);
   }
 }
 
 async function getProjects(req, res) {
   try {
     const projects = await projectService.getProjects();
-    return res.status(200).json(successResponse('Projects fetched', projects));
+    return successResponse(res, projects, 'Projects fetched');
   } catch (err) {
-    return res.status(500).json(errorResponse(err.message));
+    return errorResponse(res, err.message, 500);
   }
 }
 
 async function getProjectById(req, res) {
   try {
     const project = await projectService.getProjectById(req.params.id);
-    return res.status(200).json(successResponse('Project fetched', project));
+    return successResponse(res, project, 'Project fetched');
   } catch (err) {
-    return res.status(err.statusCode || 500).json(errorResponse(err.message));
+    return errorResponse(res, err.message, err.statusCode || 500);
   }
 }
 
 async function updateProject(req, res) {
   try {
     const project = await projectService.updateProject(req.params.id, req.body);
-    return res.status(200).json(successResponse('Project updated', project));
+    return successResponse(res, project, 'Project updated');
   } catch (err) {
-    return res.status(err.statusCode || 500).json(errorResponse(err.message));
+    return errorResponse(res, err.message, err.statusCode || 500);
   }
 }
 
 async function deleteProject(req, res) {
   try {
     await projectService.deleteProject(req.params.id);
-    return res.status(200).json(successResponse('Project deleted', null));
+    return successResponse(res, null, 'Project deleted');
   } catch (err) {
-    return res.status(err.statusCode || 500).json(errorResponse(err.message));
+    return errorResponse(res, err.message, err.statusCode || 500);
   }
 }
 
