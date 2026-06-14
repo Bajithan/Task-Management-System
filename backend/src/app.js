@@ -16,15 +16,17 @@ const notificationRoutes = require('./routes/notification.routes');
 // MEMBER 5 — uncomment when your branch is merged:
 const dashboardRoutes = require('./routes/dashboard.routes');
 
+const rateLimit = require('./middlewares/rateLimiter');
+const sanitize = require('./middlewares/sanitize');
+
 const app = express();
 
 app.use(cors({ origin: CLIENT_URL, credentials: true }));
 app.use(express.json());
-const rateLimit = require('./middlewares/rateLimiter');
-const sanitize = require('./middlewares/sanitize');
+app.use(express.urlencoded({ extended: true }));
 app.use(rateLimit);
 app.use(sanitize);
-app.use(express.urlencoded({ extended: true }));
+
 
 setupSwagger(app);
 
