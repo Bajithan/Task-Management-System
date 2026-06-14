@@ -14,12 +14,16 @@ const userRoutes = require('./routes/user.routes');
 const commentRoutes = require('./routes/comment.routes');
 const notificationRoutes = require('./routes/notification.routes');
 // MEMBER 5 — uncomment when your branch is merged:
-// const dashboardRoutes = require('./routes/dashboard.routes');
+const dashboardRoutes = require('./routes/dashboard.routes');
 
 const app = express();
 
 app.use(cors({ origin: CLIENT_URL, credentials: true }));
 app.use(express.json());
+const rateLimit = require('./middlewares/rateLimiter');
+const sanitize = require('./middlewares/sanitize');
+app.use(rateLimit);
+app.use(sanitize);
 app.use(express.urlencoded({ extended: true }));
 
 setupSwagger(app);
@@ -38,7 +42,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/notifications', notificationRoutes);
 // MEMBER 5 — uncomment when your branch is merged:
-// app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 app.use(errorHandler);
 

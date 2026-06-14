@@ -12,6 +12,8 @@ import ProtectedRoute from './components/shared/ProtectedRoute';
 import NotificationsPage from './pages/NotificationsPage';
 
 // MEMBER 5 — import DashboardPage and ProfilePage here
+import DashboardPage from './pages/dashboard/DashboardPage';
+import ProfilePage from './pages/dashboard/ProfilePage';
 
 function App() {
   return (
@@ -37,8 +39,8 @@ function App() {
           <Route path="/notifications" element={<NotificationsPage />} />
           
           {/* MEMBER 5 — add your routes here */}
-          {/* <Route path="/dashboard" element={<DashboardPage />} /> */}
-          {/* <Route path="/profile" element={<ProfilePage />} /> */}
+          { <Route path="/dashboard" element={<DashboardPage />} /> }
+          { <Route path="/profile" element={<ProfilePage />} /> }
         </Route>
       </Routes>
     </BrowserRouter>
