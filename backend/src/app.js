@@ -6,8 +6,7 @@ const { setupSwagger } = require('./swagger/swagger');
 
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
-// MEMBER 2 — uncomment when your branch is merged:
-// const projectRoutes = require('./routes/project.routes');
+ const projectRoutes = require('./routes/project.routes');
 // MEMBER 3 — uncomment when your branch is merged:
 // const taskRoutes = require('./routes/task.routes');
 // MEMBER 4 — uncomment when your branch is merged:
@@ -30,8 +29,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-// MEMBER 2 — uncomment when your branch is merged:
-// app.use('/api/projects', projectRoutes);
+app.use('/api/projects', projectRoutes);
 // MEMBER 3 — uncomment when your branch is merged:
 // app.use('/api/tasks', taskRoutes);
 // MEMBER 4 — uncomment when your branch is merged:
