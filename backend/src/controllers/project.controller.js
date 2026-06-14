@@ -3,7 +3,11 @@ const { successResponse, errorResponse } = require('../utils/responseHelper');
 
 async function createProject(req, res) {
   try {
-    const project = await projectService.createProject(req.body);
+    const projectData = {
+      ...req.body,
+      created_by: req.user.user_id, // comes from auth middleware (JWT payload)
+    };
+    const project = await projectService.createProject(projectData);
     return res.status(201).json(successResponse('Project created', project));
   } catch (err) {
     return res.status(err.statusCode || 500).json(errorResponse(err.message));

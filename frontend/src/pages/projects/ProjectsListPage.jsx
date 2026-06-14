@@ -9,7 +9,7 @@ export default function ProjectsListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const [newProject, setNewProject] = useState({ name: '', description: '', status: 'Active' });
+  const [newProject, setNewProject] = useState({ name: '', description: '', status: 'Planning' });
   const navigate = useNavigate();
 
   const fetchProjects = async () => {
@@ -32,17 +32,17 @@ export default function ProjectsListPage() {
     try {
       await createProject(newProject);
       setShowForm(false);
-      setNewProject({ name: '', description: '', status: 'Active' });
+      setNewProject({ name: '', description: '', status: 'Planning' });
       fetchProjects();
     } catch (err) {
       setError('Failed to create project');
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (projectId) => {
     if (!window.confirm('Delete this project?')) return;
     try {
-      await deleteProject(id);
+      await deleteProject(projectId);
       fetchProjects();
     } catch (err) {
       setError('Failed to delete project');
@@ -71,6 +71,7 @@ export default function ProjectsListPage() {
         />
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={{ padding: '0.5rem' }}>
           <option value="">All Statuses</option>
+          <option value="Planning">Planning</option>
           <option value="Active">Active</option>
           <option value="On Hold">On Hold</option>
           <option value="Completed">Completed</option>
@@ -100,6 +101,7 @@ export default function ProjectsListPage() {
             onChange={(e) => setNewProject({ ...newProject, status: e.target.value })}
             style={{ marginBottom: '0.5rem', padding: '0.5rem' }}
           >
+            <option value="Planning">Planning</option>
             <option value="Active">Active</option>
             <option value="On Hold">On Hold</option>
             <option value="Completed">Completed</option>
@@ -125,13 +127,13 @@ export default function ProjectsListPage() {
             <tr><td colSpan={4} style={{ padding: '1rem' }}>No projects found.</td></tr>
           ) : (
             filtered.map((project) => (
-              <tr key={project.id} style={{ borderBottom: '1px solid #eee' }}>
+              <tr key={project.project_id} style={{ borderBottom: '1px solid #eee' }}>
                 <td style={{ padding: '0.75rem' }}>{project.name}</td>
                 <td style={{ padding: '0.75rem' }}>{project.description || '—'}</td>
                 <td style={{ padding: '0.75rem' }}>{project.status}</td>
                 <td style={{ padding: '0.75rem', display: 'flex', gap: '0.5rem' }}>
-                  <button onClick={() => navigate(`/projects/${project.id}`)}>View</button>
-                  <button onClick={() => handleDelete(project.id)} style={{ color: 'red' }}>Delete</button>
+                  <button onClick={() => navigate(`/projects/${project.project_id}`)}>View</button>
+                  <button onClick={() => handleDelete(project.project_id)} style={{ color: 'red' }}>Delete</button>
                 </td>
               </tr>
             ))

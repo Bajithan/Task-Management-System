@@ -77,6 +77,7 @@ export default function ProjectDetailPage() {
             onChange={(e) => setForm({ ...form, status: e.target.value })}
             style={{ display: 'block', marginBottom: '1rem', padding: '0.5rem' }}
           >
+            <option value="Planning">Planning</option>
             <option value="Active">Active</option>
             <option value="On Hold">On Hold</option>
             <option value="Completed">Completed</option>

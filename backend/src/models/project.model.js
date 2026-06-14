@@ -2,7 +2,7 @@ const supabase = require('../config/db');
 
 async function createProject(data) {
   const { data: project, error } = await supabase
-    .from('projects')
+    .from('Projects')
     .insert([data])
     .select()
     .single();
@@ -12,7 +12,7 @@ async function createProject(data) {
 
 async function findAll() {
   const { data: projects, error } = await supabase
-    .from('projects')
+    .from('Projects')
     .select('*')
     .order('created_at', { ascending: false });
   if (error) throw new Error(error.message);
@@ -21,9 +21,9 @@ async function findAll() {
 
 async function findById(projectId) {
   const { data: project, error } = await supabase
-    .from('projects')
+    .from('Projects')
     .select('*')
-    .eq('id', projectId)
+    .eq('project_id', projectId)
     .single();
   if (error) throw new Error(error.message);
   return project;
@@ -31,9 +31,9 @@ async function findById(projectId) {
 
 async function updateProject(projectId, updates) {
   const { data: project, error } = await supabase
-    .from('projects')
+    .from('Projects')
     .update(updates)
-    .eq('id', projectId)
+    .eq('project_id', projectId)
     .select()
     .single();
   if (error) throw new Error(error.message);
@@ -42,9 +42,9 @@ async function updateProject(projectId, updates) {
 
 async function deleteProject(projectId) {
   const { error } = await supabase
-    .from('projects')
+    .from('Projects')
     .delete()
-    .eq('id', projectId);
+    .eq('project_id', projectId);
   if (error) throw new Error(error.message);
   return true;
 }
