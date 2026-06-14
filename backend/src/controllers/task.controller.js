@@ -6,6 +6,7 @@ const TaskController = {
             const tasks = await TaskService.fetchAllTasks();
             res.json(tasks);
         } catch (error) {
+            console.error("LOOK AT THIS ERROR:", error);
             res.status(500).json({ error: error.message });
         }
     },
@@ -14,6 +15,42 @@ const TaskController = {
         try {
             const task = await TaskService.addTask(req.body);
             res.status(201).json(task);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    },
+
+    async getTaskById(req, res) {
+        try {
+            const task = await TaskService.fetchTaskById(req.params.id);
+            res.json(task);
+        } catch (error) {
+            res.status(404).json({ error: error.message });
+        }
+    },
+
+    async updateTask(req, res) {
+        try {
+            const task = await TaskService.updateTask(req.params.id, req.body);
+            res.json(task);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    },
+
+    async updateStatus(req, res) {
+        try {
+            const task = await TaskService.updateTaskStatus(req.params.id, req.body.status);
+            res.json(task);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    },
+
+    async deleteTask(req, res) {
+        try {
+            await TaskService.removeTask(req.params.id);
+            res.status(204).send();
         } catch (error) {
             res.status(400).json({ error: error.message });
         }

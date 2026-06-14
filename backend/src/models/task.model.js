@@ -1,10 +1,11 @@
-const { supabase } = require('../config/supabaseClient');
+// Remove the curly braces {} so it imports the object directly
+const supabase = require('../config/db'); 
 
 const Task = {
     // Fetch all tasks
     async getAll() {
         const { data, error } = await supabase
-            .from('tasks')
+            .from('Tasks')
             .select('*');
         if (error) throw error;
         return data;
@@ -13,13 +14,11 @@ const Task = {
     // Create a new task
     async create(taskData) {
         const { data, error } = await supabase
-            .from('tasks')
+            .from('Tasks')
             .insert([taskData]);
         if (error) throw error;
         return data;
     },
-
-    // Add more functions (update, delete, getById) as needed
 };
 
 module.exports = Task;

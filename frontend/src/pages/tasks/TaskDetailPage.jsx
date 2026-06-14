@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getTaskById } from '../../api/tasksApi';
-
+import CommentSection from '../../components/comments/CommentSection';
 const TaskDetailPage = () => {
     const { id } = useParams();
     const [task, setTask] = useState(null);
@@ -30,7 +30,7 @@ const TaskDetailPage = () => {
             {/* Edit form would go here */}
 
             {/* MEMBER 4 - CommentSection goes here */}
-            <div></div>
+            <CommentSection taskId={task.task_id} />
         </div>
     );
 };
