@@ -13,6 +13,7 @@ import KanbanBoardPage from './pages/tasks/KanbanBoardPage';
 import TaskDetailPage from './pages/tasks/TaskDetailPage';
 
 // MEMBER 4 — import NotificationsPage here
+import NotificationsPage from './pages/NotificationsPage';
 
 // MEMBER 5 — import DashboardPage and ProfilePage here
 import DashboardPage from './pages/dashboard/DashboardPage';
@@ -40,7 +41,7 @@ function App() {
           {<Route path="/tasks/:id" element={<TaskDetailPage />} /> }
           
           {/* MEMBER 4 — add your routes here */}
-          {/*<Route path="/notifications" element={<NotificationsPage />} /> */}
+          {<Route path="/notifications" element={<NotificationsPage />} /> }
           
           {/* MEMBER 5 — add your routes here */}
 
