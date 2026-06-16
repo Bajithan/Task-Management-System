@@ -8,7 +8,7 @@ const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
  const projectRoutes = require('./routes/project.routes');
 // MEMBER 3 — uncomment when your branch is merged:
-// const taskRoutes = require('./routes/task.routes');
+const taskRoutes = require('./routes/task.routes');
 // MEMBER 4 — uncomment when your branch is merged:
 const commentRoutes = require('./routes/comment.routes');
 const notificationRoutes = require('./routes/notification.routes');
@@ -37,7 +37,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
 // MEMBER 3 — uncomment when your branch is merged:
-// app.use('/api/tasks', taskRoutes);
+app.use('/api/tasks', taskRoutes);
 // MEMBER 4 — uncomment when your branch is merged:
 app.use('/api/comments', commentRoutes);
 app.use('/api/notifications', notificationRoutes);
