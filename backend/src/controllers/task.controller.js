@@ -13,7 +13,11 @@ const TaskController = {
 
     async createTask(req, res) {
         try {
-            const task = await TaskService.addTask(req.body);
+            const taskData = {
+                ...req.body,
+                created_by: req.user.user_id,
+            };
+            const task = await TaskService.addTask(taskData);
             res.status(201).json(task);
         } catch (error) {
             res.status(400).json({ error: error.message });
