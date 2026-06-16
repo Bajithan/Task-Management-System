@@ -4,21 +4,39 @@ import LoginPage from './pages/auth/LoginPage';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import UserManagementPage from './pages/users/UserManagementPage';
 import ProtectedRoute from './components/shared/ProtectedRoute';
+import Navbar from './components/shared/Navbar';
+import Sidebar from './components/shared/Sidebar';
 
 import ProjectsListPage from './pages/projects/ProjectsListPage';
 import ProjectDetailPage from './pages/projects/ProjectDetailPage';
-// MEMBER 3 — import TasksPage, KanbanBoardPage, TaskDetailPage here
 import TasksPage from './pages/tasks/TasksPage';
 import KanbanBoardPage from './pages/tasks/KanbanBoardPage';
 import TaskDetailPage from './pages/tasks/TaskDetailPage';
-
-// MEMBER 4 — import NotificationsPage here
-import NotificationsPage from './pages/NotificationsPage';
-
-// MEMBER 5 — import DashboardPage and ProfilePage here
+import NotificationsPage from './pages/notifications/NotificationsPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import ProfilePage from './pages/dashboard/ProfilePage';
 
+const Layout = ({ children }) => {
+  return (
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+      <Sidebar />
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <Navbar />
+        <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#f0f2f5' }}>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const LayoutRoute = ({ element }) => {
+  return (
+    <Layout>
+      {element}
+    </Layout>
+  );
+};
 
 function App() {
   return (
@@ -29,27 +47,20 @@ function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/users" element={<UserManagementPage />} />
-          
-          {/* MEMBER 2 — add your routes here */}
-          { <Route path="/projects" element={<ProjectsListPage />} /> }
-          {<Route path="/projects/:id" element={<ProjectDetailPage />} /> }
-          
-          {/* MEMBER 3 — add your routes here */}
-          { <Route path="/tasks" element={<TasksPage />} /> }
-          { <Route path="/tasks/kanban" element={<KanbanBoardPage />} /> }
-          {<Route path="/tasks/:id" element={<TaskDetailPage />} /> }
-          
-          {/* MEMBER 4 — add your routes here */}
-          {<Route path="/notifications" element={<NotificationsPage />} /> }
-          
-          {/* MEMBER 5 — add your routes here */}
 
-          { <Route path="/dashboard" element={<DashboardPage />} /> }
-          { <Route path="/profile" element={<ProfilePage />} /> }
+          <Route path="/dashboard" element={<LayoutRoute element={<DashboardPage />} />} />
+          <Route path="/profile" element={<LayoutRoute element={<ProfilePage />} />} />
+          <Route path="/users" element={<LayoutRoute element={<UserManagementPage />} />} />
+          <Route path="/projects" element={<LayoutRoute element={<ProjectsListPage />} />} />
+          <Route path="/projects/:id" element={<LayoutRoute element={<ProjectDetailPage />} />} />
+          <Route path="/tasks" element={<LayoutRoute element={<TasksPage />} />} />
+          <Route path="/tasks/kanban" element={<LayoutRoute element={<KanbanBoardPage />} />} />
+          <Route path="/tasks/:id" element={<LayoutRoute element={<TaskDetailPage />} />} />
+          <Route path="/notifications" element={<LayoutRoute element={<NotificationsPage />} />} />
         </Route>
       </Routes>
     </BrowserRouter>
-);
+  );
 }
+
 export default App;
