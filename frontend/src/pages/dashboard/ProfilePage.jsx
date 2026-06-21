@@ -64,7 +64,11 @@ export default function ProfilePage() {
         </div>
         <div style={styles.infoRow}>
           <span style={styles.label}>Email</span>
-          <span style={styles.value}>{user?.email || "—"}</span>
+          <span style={styles.value}>
+          {user?.first_name && user?.last_name
+          ? `${user.first_name} ${user.last_name}`
+         : "—"}
+       </span>
         </div>
         <div style={styles.infoRow}>
           <span style={styles.label}>Role</span>
