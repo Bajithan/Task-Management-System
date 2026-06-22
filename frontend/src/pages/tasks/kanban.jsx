@@ -12,7 +12,6 @@ import SystemConfigPage from './pages/admin/SystemConfigPage';
 import ProjectsListPage from './pages/projects/ProjectsListPage';
 import ProjectDetailPage from './pages/projects/ProjectDetailPage';
 import TasksPage from './pages/tasks/TasksPage';
-//import KanbanBoardPage from './pages/tasks/KanbanBoardPage';
 import TaskDetailPage from './pages/tasks/TaskDetailPage';
 import MyTasksPage from './pages/tasks/MyTasksPage';
 import NotificationsPage from './pages/notifications/NotificationsPage';
@@ -21,23 +20,18 @@ import ProfilePage from './pages/dashboard/ProfilePage';
 
 const Layout = ({ children }) => {
   return (
-    <div style={{ display: 'flex', height: '100vh', width: '100%', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
       <Sidebar />
-      <div style={{
-        flex: '1 1 0%',
-        minWidth: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-      }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <Navbar />
-        <div style={{ flex: '1 1 0%', overflowY: 'auto', backgroundColor: '#F8F9FB' }}>
+        <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#f0f2f5' }}>
           {children}
         </div>
       </div>
     </div>
   );
 };
+
 const LayoutRoute = ({ element }) => <Layout>{element}</Layout>;
 
 const HomeRedirect = () => {
@@ -76,9 +70,8 @@ function App() {
           <Route path="/tasks" element={
             <RoleRoute allowedRoles={['Project Manager']} element={<LayoutRoute element={<TasksPage />} />} />
           } />
-   
 
-          {/*Collaborator only*/}
+          {/* Collaborator only */}
           <Route path="/my-tasks" element={
             <RoleRoute allowedRoles={['Collaborator']} element={<LayoutRoute element={<MyTasksPage />} />} />
           } />
@@ -89,7 +82,7 @@ function App() {
           } />
           <Route path="/notifications" element={
             <RoleRoute allowedRoles={['Project Manager', 'Collaborator']} element={<LayoutRoute element={<NotificationsPage />} />} />
-          } /> 
+          } />
 
           {/* All roles */}
           <Route path="/profile" element={<LayoutRoute element={<ProfilePage />} />} />

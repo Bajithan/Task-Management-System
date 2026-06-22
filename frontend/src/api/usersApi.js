@@ -27,6 +27,9 @@ const usersApi = {
 
   deactivateUser: (id) =>
     API.patch(`/users/${id}/deactivate`).then((r) => r.data),
+
+  getAssignableUsers: () =>
+    API.get('/users/assignable').then((r) => r.data),
 };
 
 export default usersApi;

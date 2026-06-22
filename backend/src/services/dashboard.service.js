@@ -35,5 +35,15 @@ async function getSummary() {
     throw new Error('Failed to fetch dashboard summary: ' + error.message);
   }
 }
+async function getSystemConfig() {
+  try {
+    const stats = await dashboardModel.getSystemStats();
+    return stats;
+  } catch (error) {
+    console.error('SYSTEM CONFIG ERROR:', error);
+    throw new Error('Failed to fetch system config: ' + error.message);
+  }
+}
 
 module.exports = { getSummary };
+module.exports = { getSummary, getSystemConfig };

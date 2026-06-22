@@ -1,15 +1,16 @@
-import { useState } from "react";
-import axios from "axios";
+import { useState } from 'react';
+import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
+import { theme } from '../../styles/theme';
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export default function ProfilePage() {
   const { user } = useAuth();
 
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -18,217 +19,136 @@ export default function ProfilePage() {
     setMessage(null);
     setError(null);
 
-    // Basic validation
     if (!currentPassword || !newPassword || !confirmPassword) {
-      setError("All fields are required.");
+      setError('All fields are required.');
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError("New passwords do not match.");
+      setError('New passwords do not match.');
       return;
     }
     if (newPassword.length < 8) {
-      setError("New password must be at least 8 characters.");
+      setError('New password must be at least 8 characters.');
       return;
     }
 
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem('token');
       await axios.put(
         `${API_BASE}/users/me`,
         { currentPassword, newPassword },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setMessage("Password changed successfully!");
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
+      setMessage('Password changed successfully.');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to change password.");
+      setError(err.response?.data?.message || 'Failed to change password.');
     } finally {
       setLoading(false);
     }
   };
 
+  const fullName = user?.first_name && user?.last_name
+    ? `${user.first_name} ${user.last_name}`
+    : '—';
+
   return (
-    <div style={styles.container}>
-      <h1 style={styles.heading}>My Profile</h1>
+    <div style={s.page}>
+      <h1 style={s.title}>My profile</h1>
+      <p style={s.subtitle}>Manage your account details and password.</p>
 
-      {/* User Info Card */}
-      <div style={styles.card}>
-        <h2 style={styles.sectionTitle}>Account Information</h2>
-        <div style={styles.infoRow}>
-          <span style={styles.label}>Name</span>
-          <span style={styles.value}>{user?.name || "—"}</span>
-        </div>
-        <div style={styles.infoRow}>
-          <span style={styles.label}>Email</span>
-          <span style={styles.value}>
-          {user?.first_name && user?.last_name
-          ? `${user.first_name} ${user.last_name}`
-         : "—"}
-       </span>
-        </div>
-        <div style={styles.infoRow}>
-          <span style={styles.label}>Role</span>
-          <span style={styles.roleBadge}>{user?.role || "—"}</span>
-        </div>
-      </div>
+      <div style={s.grid}>
+        <div style={s.card}>
+          <h2 style={s.sectionTitle}>Account information</h2>
+          <Row label="Name" value={fullName} />
+          <Row label="Email" value={user?.email || '—'} />
+          <Row label="Role" value={<span style={s.roleBadge}>{user?.role || '—'}</span>} />
 
-      {/* Password Change Card */}
-      <div style={styles.card}>
-        <h2 style={styles.sectionTitle}>Change Password</h2>
-
-        {message && <p style={styles.success}>{message}</p>}
-        {error && <p style={styles.error}>{error}</p>}
-
-        <div style={styles.formGroup}>
-          <label style={styles.label}>Current Password</label>
-          <input
-            type="password"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            style={styles.input}
-            placeholder="Enter current password"
-          />
+          <div style={s.infoNote}>
+            Need to update your name or email? Contact an administrator.
+          </div>
         </div>
 
-        <div style={styles.formGroup}>
-          <label style={styles.label}>New Password</label>
-          <input
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            style={styles.input}
-            placeholder="Enter new password"
-          />
-        </div>
+        <div style={s.card}>
+          <h2 style={s.sectionTitle}>Change password</h2>
 
-        <div style={styles.formGroup}>
-          <label style={styles.label}>Confirm New Password</label>
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            style={styles.input}
-            placeholder="Confirm new password"
-          />
-        </div>
+          {message && <div style={s.alertSuccess}>{message}</div>}
+          {error && <div style={s.alertError}>{error}</div>}
 
-        <button
-          onClick={handlePasswordChange}
-          disabled={loading}
-          style={loading ? styles.buttonDisabled : styles.button}
-        >
-          {loading ? "Saving..." : "Change Password"}
-        </button>
+          <div style={s.field}>
+            <label style={s.label}>Current password</label>
+            <input
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              style={s.input}
+              placeholder="Enter current password"
+            />
+          </div>
+
+          <div style={s.field}>
+            <label style={s.label}>New password</label>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              style={s.input}
+              placeholder="Enter new password"
+            />
+          </div>
+
+          <div style={s.field}>
+            <label style={s.label}>Confirm new password</label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              style={s.input}
+              placeholder="Confirm new password"
+            />
+          </div>
+
+          <button onClick={handlePasswordChange} disabled={loading} style={loading ? s.btnDisabled : s.btn}>
+            {loading ? 'Saving...' : 'Change password'}
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
-const styles = {
-  container: {
-    padding: "24px",
-    fontFamily: "sans-serif",
-    backgroundColor: "#f8fafc",
-    minHeight: "100vh",
+const Row = ({ label, value }) => (
+  <div style={s.row}>
+    <span style={s.rowLabel}>{label}</span>
+    <span style={s.rowValue}>{value}</span>
+  </div>
+);
+
+const s = {
+  page: { padding: '28px 28px', width: '100%', boxSizing: 'border-box' },
+  title: { fontFamily: theme.font.body, fontSize: '22px', fontWeight: 700, color: theme.color.ink, margin: '0 0 4px 0', letterSpacing: '-0.01em' },
+  subtitle: { fontSize: '13.5px', color: theme.color.inkSoft, margin: '0 0 24px 0', fontFamily: theme.font.body },
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+    gap: '18px',
+    alignItems: 'start',
   },
-  heading: {
-    fontSize: "28px",
-    fontWeight: "700",
-    marginBottom: "24px",
-    color: "#1e293b",
-  },
-  card: {
-    backgroundColor: "#ffffff",
-    borderRadius: "12px",
-    padding: "24px",
-    marginBottom: "24px",
-    boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
-    maxWidth: "600px",
-  },
-  sectionTitle: {
-    fontSize: "18px",
-    fontWeight: "600",
-    marginBottom: "16px",
-    color: "#1e293b",
-  },
-  infoRow: {
-    display: "flex",
-    alignItems: "center",
-    gap: "16px",
-    marginBottom: "12px",
-  },
-  label: {
-    width: "120px",
-    fontSize: "14px",
-    color: "#64748b",
-    fontWeight: "500",
-  },
-  value: {
-    fontSize: "15px",
-    color: "#1e293b",
-  },
-  roleBadge: {
-    backgroundColor: "#ede9fe",
-    color: "#6d28d9",
-    padding: "4px 12px",
-    borderRadius: "999px",
-    fontSize: "13px",
-    fontWeight: "600",
-  },
-  formGroup: {
-    marginBottom: "16px",
-  },
-  input: {
-    display: "block",
-    width: "100%",
-    padding: "10px 14px",
-    fontSize: "14px",
-    border: "1px solid #e2e8f0",
-    borderRadius: "8px",
-    marginTop: "6px",
-    outline: "none",
-    boxSizing: "border-box",
-  },
-  button: {
-    backgroundColor: "#6366f1",
-    color: "#ffffff",
-    padding: "10px 24px",
-    border: "none",
-    borderRadius: "8px",
-    fontSize: "14px",
-    fontWeight: "600",
-    cursor: "pointer",
-    marginTop: "8px",
-  },
-  buttonDisabled: {
-    backgroundColor: "#a5b4fc",
-    color: "#ffffff",
-    padding: "10px 24px",
-    border: "none",
-    borderRadius: "8px",
-    fontSize: "14px",
-    fontWeight: "600",
-    cursor: "not-allowed",
-    marginTop: "8px",
-  },
-  success: {
-    backgroundColor: "#dcfce7",
-    color: "#16a34a",
-    padding: "10px 14px",
-    borderRadius: "8px",
-    marginBottom: "16px",
-    fontSize: "14px",
-  },
-  error: {
-    backgroundColor: "#fee2e2",
-    color: "#dc2626",
-    padding: "10px 14px",
-    borderRadius: "8px",
-    marginBottom: "16px",
-    fontSize: "14px",
-  },
+  card: { backgroundColor: theme.color.surface, borderRadius: theme.radius.md, border: `1px solid ${theme.color.border}`, padding: '24px' },
+  sectionTitle: { fontSize: '15px', fontWeight: 600, color: theme.color.ink, marginBottom: '18px', marginTop: 0, fontFamily: theme.font.body },
+  row: { display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '14px' },
+  rowLabel: { width: '90px', fontSize: '13px', color: theme.color.inkSoft, fontFamily: theme.font.body, flexShrink: 0 },
+  rowValue: { fontSize: '14px', color: theme.color.ink, fontFamily: theme.font.body },
+  roleBadge: { backgroundColor: theme.color.accentSoft, color: theme.color.accent, padding: '3px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 600 },
+  infoNote: { marginTop: '20px', paddingTop: '16px', borderTop: `1px solid ${theme.color.border}`, fontSize: '12.5px', color: theme.color.inkFaint, fontFamily: theme.font.body, lineHeight: 1.5 },
+  field: { marginBottom: '16px' },
+  label: { display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: 500, color: theme.color.ink, fontFamily: theme.font.body },
+  input: { width: '100%', padding: '9px 12px', border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.sm, fontSize: '13.5px', boxSizing: 'border-box', fontFamily: theme.font.body, outline: 'none' },
+  btn: { backgroundColor: theme.color.accent, color: '#fff', padding: '9px 18px', border: 'none', borderRadius: theme.radius.sm, fontSize: '13.5px', fontWeight: 500, cursor: 'pointer', fontFamily: theme.font.body, width: '100%' },
+  btnDisabled: { backgroundColor: theme.color.borderStrong, color: '#fff', padding: '9px 18px', border: 'none', borderRadius: theme.radius.sm, fontSize: '13.5px', fontWeight: 500, cursor: 'not-allowed', fontFamily: theme.font.body, width: '100%' },
+  alertSuccess: { backgroundColor: theme.color.successSoft, color: theme.color.success, padding: '10px 14px', borderRadius: theme.radius.sm, marginBottom: '14px', fontSize: '13.5px', fontFamily: theme.font.body },
+  alertError: { backgroundColor: theme.color.dangerSoft, color: theme.color.danger, padding: '10px 14px', borderRadius: theme.radius.sm, marginBottom: '14px', fontSize: '13.5px', fontFamily: theme.font.body },
 };

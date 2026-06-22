@@ -3,7 +3,14 @@ const TaskService = require('../services/task.service');
 const TaskController = {
     async getAllTasks(req, res) {
         try {
-            const tasks = await TaskService.fetchAllTasks();
+            const filters = {
+                status: req.query.status || undefined,
+                priority: req.query.priority || undefined,
+                assigned_to: req.query.assigned_to || undefined,
+                project_id: req.query.project_id || undefined,
+                no_project: req.query.no_project === 'true' ? true : undefined,
+            };
+            const tasks = await TaskService.fetchAllTasks(filters);
             res.json(tasks);
         } catch (error) {
             console.error("LOOK AT THIS ERROR:", error);
@@ -44,10 +51,15 @@ const TaskController = {
 
     async updateStatus(req, res) {
         try {
-            const task = await TaskService.updateTaskStatus(req.params.id, req.body.status);
+            const task = await TaskService.updateTaskStatus(
+                req.params.id,
+                req.body.status,
+                req.user.user_id,
+                req.user.role
+            );
             res.json(task);
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            res.status(error.statusCode || 400).json({ error: error.message });
         }
     },
 

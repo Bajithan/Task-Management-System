@@ -1,8 +1,8 @@
 const Task = require('../models/task.model');
 
 const TaskService = {
-    async fetchAllTasks() {
-        return await Task.getAll();
+    async fetchAllTasks(filters) {
+        return await Task.getAll(filters);
     },
 
     async addTask(taskData) {
@@ -28,7 +28,7 @@ const TaskService = {
         return await Task.update(taskId, taskData);
     },
 
-    async updateTaskStatus(taskId, status) {
+    async updateTaskStatus(taskId, status, userId, userRole) {
         const validStatuses = ['To Do', 'In Progress', 'Completed'];
         if (!validStatuses.includes(status)) {
             throw new Error("Invalid status. Must be To Do, In Progress, or Completed");
@@ -37,6 +37,14 @@ const TaskService = {
         if (!task) {
             throw new Error("Task not found");
         }
+
+        // Collaborators can only update status on tasks assigned to them
+        if (userRole === 'Collaborator' && task.assigned_to !== userId) {
+            const err = new Error("You can only update status on tasks assigned to you");
+            err.statusCode = 403;
+            throw err;
+        }
+
         return await Task.updateStatus(taskId, status);
     },
 

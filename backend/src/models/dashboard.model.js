@@ -63,10 +63,38 @@ async function getWeeklyCompletion() {
   return data;
 }
 
+async function getSystemStats() {
+  const [usersResult, projectsResult, tasksResult, auditResult] = await Promise.all([
+    supabase.from('Users').select('user_id, is_active'),
+    supabase.from('Projects').select('project_id'),
+    supabase.from('Tasks').select('task_id'),
+    supabase.from('Audit_Logs').select('*').order('created_at', { ascending: false }).limit(50),
+  ]);
+
+  if (usersResult.error) throw usersResult.error;
+  if (projectsResult.error) throw projectsResult.error;
+  if (tasksResult.error) throw tasksResult.error;
+  if (auditResult.error) throw auditResult.error;
+
+  const totalUsers = usersResult.data.length;
+  const activeUsers = usersResult.data.filter(u => u.is_active).length;
+  const inactiveUsers = totalUsers - activeUsers;
+
+  return {
+    totalUsers,
+    activeUsers,
+    inactiveUsers,
+    totalProjects: projectsResult.data.length,
+    totalTasks: tasksResult.data.length,
+    recentAuditLogs: auditResult.data,
+  };
+}
+
 module.exports = {
   countTasksByStatus,
   countTasksByPriority,
   getOverdueTasks,
   getProjectProgress,
   getWeeklyCompletion,
+  getSystemStats,
 };

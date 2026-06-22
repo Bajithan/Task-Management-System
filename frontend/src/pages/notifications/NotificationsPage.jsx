@@ -1,96 +1,122 @@
 import { useState, useEffect } from 'react';
 import { getNotifications, markAllAsRead, markAsRead } from '../../api/notificationsApi';
+import { theme } from '../../styles/theme';
 
 const NotificationsPage = () => {
-    const [notifications, setNotifications] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-    useEffect(() => {
-        const fetchNotifications = async () => {
-            try {
-                const data = await getNotifications();
-                setNotifications(data);
-            } catch (error) {
-                console.error("Error loading notifications:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchNotifications();
-    }, []);
-
-    const handleMarkAllRead = async () => {
-        try {
-            await markAllAsRead();
-            setNotifications(notifications.map(n => ({ ...n, is_read: true })));
-        } catch (error) {
-            console.error("Error marking all as read:", error);
-        }
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const data = await getNotifications();
+        setNotifications(data);
+      } catch {
+        setError('Failed to load notifications');
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchNotifications();
+  }, []);
 
-    const handleMarkRead = async (id) => {
-        try {
-            await markAsRead(id);
-            setNotifications(notifications.map(n =>
-                n.notification_id === id ? { ...n, is_read: true } : n
-            ));
-        } catch (error) {
-            console.error("Error marking as read:", error);
-        }
-    };
+  const handleMarkAllRead = async () => {
+    try {
+      await markAllAsRead();
+      setNotifications(notifications.map((n) => ({ ...n, is_read: true })));
+    } catch {
+      setError('Failed to mark all as read');
+    }
+  };
 
-    if (isLoading) return (
-        <div style={{ padding: '20px', textAlign: 'center' }}>
-            Loading your notifications...
+  const handleMarkRead = async (id) => {
+    try {
+      await markAsRead(id);
+      setNotifications(notifications.map((n) =>
+        n.notification_id === id ? { ...n, is_read: true } : n
+      ));
+    } catch {
+      setError('Failed to mark as read');
+    }
+  };
+
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
+
+  if (loading) return <div style={s.loading}>Loading notifications...</div>;
+
+  return (
+    <div style={s.page}>
+      <div style={s.header}>
+        <div>
+          <h1 style={s.title}>Notifications</h1>
+          <p style={s.subtitle}>
+            {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
+          </p>
         </div>
-    );
+        {unreadCount > 0 && (
+          <button style={s.markAllBtn} onClick={handleMarkAllRead}>
+            Mark all as read
+          </button>
+        )}
+      </div>
 
-    return (
-        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-            
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #eee', paddingBottom: '10px' }}>
-                <h2 style={{ margin: 0 }}>Your Notifications</h2>
+      {error && <div style={s.alertError}>{error}</div>}
+
+      <div style={s.list}>
+        {notifications.length === 0 ? (
+          <div style={s.empty}>No notifications yet.</div>
+        ) : (
+          notifications.map((notif) => (
+            <div
+              key={notif.notification_id}
+              style={{ ...s.item, ...(notif.is_read ? s.itemRead : s.itemUnread) }}
+              onClick={() => !notif.is_read && handleMarkRead(notif.notification_id)}
+            >
+              <div style={s.itemLeft}>
+                {!notif.is_read && <span style={s.unreadDot} />}
+              </div>
+              <div style={s.itemContent}>
+                <p style={s.itemMessage}>{notif.message}</p>
+                <span style={s.itemTime}>
+                  {new Date(notif.created_at).toLocaleString()}
+                </span>
+              </div>
+              {!notif.is_read && (
                 <button
-                    onClick={handleMarkAllRead}
-                    style={{
-                        padding: '10px 15px', backgroundColor: '#007bff', color: 'white',
-                        border: 'none', borderRadius: '5px', cursor: 'pointer'
-                    }}
+                  style={s.readBtn}
+                  onClick={(e) => { e.stopPropagation(); handleMarkRead(notif.notification_id); }}
                 >
-                    Mark All as Read
+                  Mark read
                 </button>
+              )}
             </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
 
-            <div style={{ marginTop: '20px' }}>
-                {notifications.length === 0 ? (
-                    <p style={{ textAlign: 'center', color: '#666', marginTop: '40px' }}>
-                        You are all caught up! No notifications to show.
-                    </p>
-                ) : (
-                    notifications.map(notif => (
-                        <div
-                            key={notif.notification_id}
-                            onClick={() => handleMarkRead(notif.notification_id)}
-                            style={{
-                                padding: '15px',
-                                marginBottom: '10px',
-                                border: '1px solid #ddd',
-                                borderRadius: '8px',
-                                backgroundColor: notif.is_read ? '#ffffff' : '#f0f8ff',
-                                cursor: 'pointer',
-                                transition: 'background-color 0.2s'
-                            }}
-                        >
-                            <p style={{ margin: '0 0 8px 0', fontSize: '16px' }}>{notif.message}</p>
-                            <small style={{ color: '#888' }}>
-                                {new Date(notif.created_at).toLocaleString()}
-                            </small>
-                        </div>
-                    ))
-                )}
-            </div>
-        </div>
-    );
+const s = {
+  page: { padding: '28px 28px', width: '100%', boxSizing: 'border-box' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '22px' },
+  title: { fontSize: '22px', fontWeight: 700, color: theme.color.ink, margin: '0 0 4px 0', fontFamily: theme.font.body, letterSpacing: '-0.01em' },
+  subtitle: { fontSize: '13.5px', color: theme.color.inkSoft, margin: 0, fontFamily: theme.font.body },
+  markAllBtn: { padding: '8px 16px', backgroundColor: theme.color.surface, color: theme.color.accent, border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.sm, cursor: 'pointer', fontSize: '13.5px', fontWeight: 500, fontFamily: theme.font.body, flexShrink: 0 },
+  list: { display: 'flex', flexDirection: 'column', gap: '8px' },
+  item: { display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 18px', borderRadius: theme.radius.md, border: `1px solid ${theme.color.border}`, cursor: 'pointer' },
+  itemUnread: { backgroundColor: theme.color.accentSoft, borderColor: `${theme.color.accent}30` },
+  itemRead: { backgroundColor: theme.color.surface },
+  itemLeft: { width: '12px', display: 'flex', justifyContent: 'center', flexShrink: 0 },
+  unreadDot: { width: '8px', height: '8px', borderRadius: '50%', backgroundColor: theme.color.accent, display: 'block' },
+  itemContent: { flex: 1, minWidth: 0 },
+  itemMessage: { fontSize: '14px', color: theme.color.ink, margin: '0 0 4px 0', fontFamily: theme.font.body, lineHeight: 1.5 },
+  itemTime: { fontSize: '12px', color: theme.color.inkFaint, fontFamily: theme.font.mono },
+  readBtn: { padding: '5px 11px', backgroundColor: 'transparent', color: theme.color.accent, border: `1px solid ${theme.color.accent}30`, borderRadius: theme.radius.sm, cursor: 'pointer', fontSize: '12.5px', fontWeight: 500, fontFamily: theme.font.body, flexShrink: 0 },
+  empty: { padding: '48px', textAlign: 'center', color: theme.color.inkFaint, fontFamily: theme.font.body, backgroundColor: theme.color.surface, borderRadius: theme.radius.md, border: `1px dashed ${theme.color.border}` },
+  alertError: { backgroundColor: theme.color.dangerSoft, color: theme.color.danger, padding: '10px 14px', borderRadius: theme.radius.sm, marginBottom: '16px', fontSize: '13.5px', fontFamily: theme.font.body },
+  loading: { textAlign: 'center', padding: '40px', color: theme.color.inkSoft, fontFamily: theme.font.body },
 };
 
 export default NotificationsPage;

@@ -50,5 +50,30 @@ const deactivateUser = async (req, res, next) => {
     next(err);
   }
 };
+const getAssignableUsers = async (req, res, next) => {
+  try {
+    const userModel = require('../models/user.model');
+    const users = await userModel.listAssignableUsers();
+    return successResponse(res, users, 'Assignable users retrieved');
+  } catch (err) {
+    next(err);
+  }
+};
 
-module.exports = { getUsers, getUserById, createUser, updateUser, deactivateUser };
+const updateMe = async (req, res, next) => {
+  try {
+    const userId = req.user.user_id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return errorResponse(res, 'Both currentPassword and newPassword are required', 400);
+    }
+
+    await userService.updatePassword(userId, currentPassword, newPassword);
+    return successResponse(res, null, 'Password changed successfully');
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { getUsers, getUserById, createUser, updateUser, deactivateUser, getAssignableUsers, updateMe };

@@ -74,6 +74,16 @@ const clearResetToken = async (userId) => {
   if (error) throw error;
 };
 
+const listAssignableUsers = async () => {
+  const { data, error } = await supabase
+    .from('Users')
+    .select('user_id, first_name, last_name, email, role')
+    .in('role', ['Project Manager', 'Collaborator'])
+    .eq('is_active', true);
+  if (error) throw error;
+  return data;
+};
+
 module.exports = {
   findByEmail,
   findById,
@@ -82,4 +92,5 @@ module.exports = {
   listUsers,
   saveResetToken,
   clearResetToken,
+   listAssignableUsers,
 };

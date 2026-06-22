@@ -46,4 +46,22 @@ const deactivateUser = async (userId) => {
   return await userModel.updateUser(userId, { is_active: false });
 };
 
-module.exports = { createUser, getUsers, getUserById, updateUser, deactivateUser };
+const updatePassword = async (userId, currentPassword, newPassword) => {
+  const userSummary = await userModel.findById(userId);
+  if (!userSummary) throw { statusCode: 404, message: 'User not found' };
+
+  const user = await userModel.findByEmail(userSummary.email);
+  if (!user) throw { statusCode: 404, message: 'User not found' };
+
+  const isMatch = await bcrypt.compare(currentPassword, user.password_hash);
+  if (!isMatch) throw { statusCode: 400, message: 'Incorrect current password' };
+
+  if (newPassword.length < 8) {
+    throw { statusCode: 400, message: 'New password must be at least 8 characters' };
+  }
+
+  const newHash = await bcrypt.hash(newPassword, 12);
+  return await userModel.updateUser(userId, { password_hash: newHash });
+};
+
+module.exports = { createUser, getUsers, getUserById, updateUser, deactivateUser, updatePassword };

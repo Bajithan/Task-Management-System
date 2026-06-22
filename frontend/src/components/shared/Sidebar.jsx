@@ -1,13 +1,15 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { theme } from '../../styles/theme';
 
 const allNavItems = [
-  { label: 'Dashboard', path: '/dashboard', roles: ['Admin', 'Project Manager', 'Collaborator'] },
-  { label: 'Projects', path: '/projects', roles: ['Admin', 'Project Manager'] },
-  { label: 'Tasks', path: '/tasks', roles: ['Admin', 'Project Manager', 'Collaborator'] },
-  { label: 'Kanban Board', path: '/tasks/kanban', roles: ['Admin', 'Project Manager', 'Collaborator'] },
-  { label: 'Notifications', path: '/notifications', roles: ['Admin', 'Project Manager', 'Collaborator'] },
   { label: 'Users', path: '/users', roles: ['Admin'] },
+  { label: 'System config', path: '/system-config', roles: ['Admin'] },
+  { label: 'Dashboard', path: '/dashboard', roles: ['Project Manager'] },
+  { label: 'Projects', path: '/projects', roles: ['Project Manager'] },
+  { label: 'Tasks', path: '/tasks', roles: ['Project Manager'] },
+  { label: 'My tasks', path: '/my-tasks', roles: ['Collaborator'] },
+  { label: 'Notifications', path: '/notifications', roles: ['Project Manager', 'Collaborator'] },
   { label: 'Profile', path: '/profile', roles: ['Admin', 'Project Manager', 'Collaborator'] },
 ];
 
@@ -16,59 +18,86 @@ const Sidebar = () => {
   const location = useLocation();
   const { user } = useAuth();
 
-  const navItems = allNavItems.filter(
-    (item) => user && item.roles.includes(user.role)
-  );
+  const navItems = allNavItems.filter((item) => user && item.roles.includes(user.role));
 
   return (
-    <div style={styles.sidebar}>
-      <div style={styles.logo}>TMS</div>
-      <nav>
-        {navItems.map((item) => (
-          <div
-            key={item.path}
-            style={{
-              ...styles.navItem,
-              ...(location.pathname === item.path ? styles.activeNavItem : {}),
-            }}
-            onClick={() => navigate(item.path)}
-          >
-            {item.label}
-          </div>
-        ))}
+    <div style={s.sidebar}>
+      <div style={s.header}>
+        <span style={s.logo}>TMS</span>
+        <span style={s.roleBadge}>{user?.role}</span>
+      </div>
+
+      <nav style={s.nav}>
+        {navItems.map((item) => {
+          const active = location.pathname === item.path;
+          return (
+            <div
+              key={item.path}
+              style={{ ...s.navItem, ...(active ? s.navItemActive : {}) }}
+              onClick={() => navigate(item.path)}
+            >
+              {item.label}
+            </div>
+          );
+        })}
       </nav>
     </div>
   );
 };
 
-const styles = {
+const s = {
   sidebar: {
-    width: '220px',
-    backgroundColor: '#1a1a2e',
+    width: '224px',
+    backgroundColor: theme.color.sidebar,
     height: '100vh',
     display: 'flex',
     flexDirection: 'column',
     flexShrink: 0,
   },
+  header: {
+    padding: '24px 24px 20px 24px',
+    borderBottom: `1px solid ${theme.color.sidebarBorder}`,
+  },
   logo: {
-    padding: '20px 24px',
-    fontSize: '22px',
-    fontWeight: 'bold',
+    display: 'block',
+    fontFamily: theme.font.body,
+    fontSize: '17px',
+    fontWeight: 700,
     color: '#fff',
-    borderBottom: '1px solid rgba(255,255,255,0.1)',
-    letterSpacing: '2px',
+    letterSpacing: '-0.01em',
+    marginBottom: '8px',
+  },
+  roleBadge: {
+    display: 'inline-block',
+    fontFamily: theme.font.body,
+    fontSize: '11px',
+    fontWeight: 600,
+    color: theme.color.accent,
+    backgroundColor: 'rgba(99,102,241,0.15)',
+    padding: '3px 9px',
+    borderRadius: '20px',
+    letterSpacing: '0.01em',
+  },
+  nav: {
+    flex: 1,
+    padding: '16px 12px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2px',
   },
   navItem: {
-    padding: '14px 24px',
-    color: 'rgba(255,255,255,0.7)',
+    padding: '10px 12px',
+    borderRadius: theme.radius.sm,
+    color: theme.color.sidebarText,
     cursor: 'pointer',
-    fontSize: '14px',
-    transition: 'all 0.2s',
+    fontFamily: theme.font.body,
+    fontSize: '13.5px',
+    fontWeight: 500,
+    transition: 'background-color 0.15s, color 0.15s',
   },
-  activeNavItem: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
+  navItemActive: {
+    backgroundColor: theme.color.sidebarActive,
     color: '#fff',
-    borderLeft: '3px solid #4f46e5',
   },
 };
 

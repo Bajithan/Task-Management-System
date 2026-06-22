@@ -49,5 +49,13 @@ async function deleteProject(req, res) {
     return errorResponse(res, err.message, err.statusCode || 500);
   }
 }
+async function getProjectNames(req, res) {
+  try {
+    const names = await projectService.getProjectNames();
+    return successResponse(res, names, 'Project names fetched');
+  } catch (err) {
+    return errorResponse(res, err.message, 500);
+  }
+}
 
-module.exports = { createProject, getProjects, getProjectById, updateProject, deleteProject };
+module.exports = { createProject, getProjects, getProjectById, updateProject, deleteProject, getProjectNames };

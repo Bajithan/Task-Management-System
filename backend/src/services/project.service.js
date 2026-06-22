@@ -20,6 +20,11 @@ async function getProjectById(id) {
   }
   return project;
 }
+async function getProjectNames() {
+  const projects = await projectModel.findAll();
+  return projects.map(p => ({ project_id: p.project_id, name: p.name }));
+}
+
 
 async function updateProject(id, data) {
   return await projectModel.updateProject(id, data);
@@ -29,4 +34,4 @@ async function deleteProject(id) {
   return await projectModel.deleteProject(id);
 }
 
-module.exports = { createProject, getProjects, getProjectById, updateProject, deleteProject };
+module.exports = { createProject, getProjects, getProjectById, updateProject, deleteProject, getProjectNames };

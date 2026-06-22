@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, getHomeRouteForRole } from '../../context/AuthContext';
 import authApi from '../../api/authApi';
+import { theme } from '../../styles/theme';
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -16,11 +16,10 @@ const LoginPage = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
       const res = await authApi.login(email, password);
       login(res.data.user, res.data.token);
-      navigate('/dashboard');
+      navigate(getHomeRouteForRole(res.data.user.role));
     } catch (err) {
       setError(err.response?.data?.error?.message || 'Login failed');
     } finally {
@@ -29,49 +28,47 @@ const LoginPage = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>Task Management System</h2>
-        <h3 style={styles.subtitle}>Sign In</h3>
+    <div style={s.page}>
+      <div style={s.card}>
+        <div style={s.logoBlock}>
+          <span style={s.logo}>Task Management System</span>
+        </div>
 
-        {error && <div style={styles.error}>{error}</div>}
+        <h1 style={s.title}>Sign in</h1>
+        <p style={s.subtitle}>Enter your credentials to continue.</p>
+
+        {error && <div style={s.alertError}>{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          <div style={styles.field}>
-            <label style={styles.label}>Email</label>
+          <div style={s.field}>
+            <label style={s.label}>Email address</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={styles.input}
-              placeholder="Enter your email"
+              style={s.input}
+              placeholder="you@example.com"
               required
             />
           </div>
-
-          <div style={styles.field}>
-            <label style={styles.label}>Password</label>
+          <div style={s.field}>
+            <label style={s.label}>Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={styles.input}
+              style={s.input}
               placeholder="Enter your password"
               required
             />
           </div>
-
-          <button
-            type="submit"
-            style={loading ? styles.buttonDisabled : styles.button}
-            disabled={loading}
-          >
-            {loading ? 'Signing in...' : 'Sign In'}
+          <button type="submit" style={loading ? s.btnDisabled : s.btn} disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
 
         <p
-          style={styles.forgotLink}
+          style={s.forgotLink}
           onClick={() => navigate('/reset-password')}
         >
           Forgot your password?
@@ -81,91 +78,21 @@ const LoginPage = () => {
   );
 };
 
-const styles = {
-  container: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh',
-    backgroundColor: '#f0f2f5',
-  },
-  card: {
-    backgroundColor: '#fff',
-    padding: '40px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-    width: '100%',
-    maxWidth: '400px',
-  },
-  title: {
-    textAlign: 'center',
-    marginBottom: '4px',
-    color: '#1a1a2e',
-    fontSize: '20px',
-  },
-  subtitle: {
-    textAlign: 'center',
-    marginBottom: '24px',
-    color: '#555',
-    fontWeight: 'normal',
-    fontSize: '16px',
-  },
-  field: {
-    marginBottom: '16px',
-  },
-  label: {
-    display: 'block',
-    marginBottom: '6px',
-    fontSize: '14px',
-    color: '#333',
-    fontWeight: '500',
-  },
-  input: {
-    width: '100%',
-    padding: '10px 12px',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    fontSize: '14px',
-    boxSizing: 'border-box',
-    outline: 'none',
-  },
-  button: {
-    width: '100%',
-    padding: '12px',
-    backgroundColor: '#4f46e5',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '4px',
-    fontSize: '15px',
-    cursor: 'pointer',
-    marginTop: '8px',
-  },
-  buttonDisabled: {
-    width: '100%',
-    padding: '12px',
-    backgroundColor: '#a5a3e8',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '4px',
-    fontSize: '15px',
-    cursor: 'not-allowed',
-    marginTop: '8px',
-  },
-  error: {
-    backgroundColor: '#fee2e2',
-    color: '#dc2626',
-    padding: '10px 12px',
-    borderRadius: '4px',
-    marginBottom: '16px',
-    fontSize: '14px',
-  },
-  forgotLink: {
-    textAlign: 'center',
-    marginTop: '16px',
-    color: '#4f46e5',
-    cursor: 'pointer',
-    fontSize: '14px',
-  },
+const s = {
+  page: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: theme.color.bg },
+  card: { backgroundColor: theme.color.surface, border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.lg, padding: '36px', width: '100%', maxWidth: '380px' },
+  logoBlock: { textAlign: 'center', marginBottom: '28px' },
+  logo: { fontFamily: theme.font.body, fontSize: '22px', fontWeight: 700, color: theme.color.ink, letterSpacing: '-0.01em' },
+  logoSub: { fontSize: '12.5px', color: theme.color.inkFaint, margin: '4px 0 0 0', fontFamily: theme.font.body },
+  title: { fontSize: '20px', fontWeight: 700, color: theme.color.ink, margin: '0 0 4px 0', fontFamily: theme.font.body, letterSpacing: '-0.01em' },
+  subtitle: { fontSize: '13.5px', color: theme.color.inkSoft, margin: '0 0 22px 0', fontFamily: theme.font.body },
+  field: { marginBottom: '16px' },
+  label: { display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: 500, color: theme.color.ink, fontFamily: theme.font.body },
+  input: { width: '100%', padding: '10px 12px', border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.sm, fontSize: '13.5px', boxSizing: 'border-box', fontFamily: theme.font.body, outline: 'none', color: theme.color.ink },
+  btn: { width: '100%', padding: '11px', backgroundColor: theme.color.accent, color: '#fff', border: 'none', borderRadius: theme.radius.sm, fontSize: '14px', fontWeight: 600, cursor: 'pointer', fontFamily: theme.font.body, marginTop: '4px' },
+  btnDisabled: { width: '100%', padding: '11px', backgroundColor: theme.color.borderStrong, color: '#fff', border: 'none', borderRadius: theme.radius.sm, fontSize: '14px', fontWeight: 600, cursor: 'not-allowed', fontFamily: theme.font.body, marginTop: '4px' },
+  alertError: { backgroundColor: theme.color.dangerSoft, color: theme.color.danger, padding: '10px 12px', borderRadius: theme.radius.sm, marginBottom: '16px', fontSize: '13.5px', fontFamily: theme.font.body },
+  forgotLink: { textAlign: 'center', marginTop: '18px', color: theme.color.accent, cursor: 'pointer', fontSize: '13.5px', fontFamily: theme.font.body },
 };
 
 export default LoginPage;

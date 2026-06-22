@@ -6,6 +6,10 @@ const { allowRoles } = require('../middlewares/rbac.middleware');
 const { auditLog } = require('../middlewares/audit.middleware');
 
 router.use(authenticate);
+
+router.get('/assignable', allowRoles('Project Manager'), userController.getAssignableUsers);
+router.put('/me', userController.updateMe);
+
 router.use(allowRoles('Admin'));
 
 router.get('/', userController.getUsers);

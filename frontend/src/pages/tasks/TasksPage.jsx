@@ -1,164 +1,165 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTasks } from '../../api/tasksApi';
-import { useAuth } from '../../context/AuthContext';
+import { getTasks, updateTaskStatus } from '../../api/tasksApi';
+import usersApi from '../../api/usersApi';
+import { theme, statusColor, priorityColor } from '../../styles/theme';
 
 const TasksPage = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
+  const [view, setView] = useState('list');
   const [tasks, setTasks] = useState([]);
+  const [assignableUsers, setAssignableUsers] = useState([]);
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const canCreateTask = user?.role === 'Admin' || user?.role === 'Project Manager';
+  useEffect(() => { fetchUsers(); }, []);
+  useEffect(() => { fetchTasks(); }, [statusFilter, priorityFilter]);
 
-  useEffect(() => {
-    fetchTasks();
-  }, [statusFilter, priorityFilter]);
+  const fetchUsers = async () => {
+    try { const res = await usersApi.getAssignableUsers(); setAssignableUsers(res.data); }
+    catch (err) { console.error(err); }
+  };
 
   const fetchTasks = async () => {
     setLoading(true);
+    try { const { data } = await getTasks({ status: statusFilter, priority: priorityFilter }); setTasks(data); }
+    catch (err) { setError('Failed to load tasks'); }
+    finally { setLoading(false); }
+  };
+
+  const handleStatusChange = async (taskId, newStatus) => {
     try {
-      const { data } = await getTasks({ status: statusFilter, priority: priorityFilter });
-      setTasks(data);
-    } catch (err) {
-      setError('Failed to load tasks');
-    } finally {
-      setLoading(false);
-    }
+      await updateTaskStatus(taskId, newStatus);
+      setTasks(tasks.map((t) => (t.task_id === taskId ? { ...t, status: newStatus } : t)));
+    } catch (err) { console.error(err); }
   };
 
-  const getPriorityColor = (priority) => {
-    if (priority === 'High') return '#dc2626';
-    if (priority === 'Medium') return '#d97706';
-    return '#16a34a';
+  const getAssigneeName = (userId) => {
+    if (!userId) return 'Unassigned';
+    const u = assignableUsers.find((u) => u.user_id === userId);
+    return u ? `${u.first_name} ${u.last_name}` : 'Unassigned';
   };
 
-  const getStatusColor = (status) => {
-    if (status === 'Completed') return '#16a34a';
-    if (status === 'In Progress') return '#4f46e5';
-    return '#6b7280';
-  };
+  const todo = tasks.filter((t) => t.status === 'To Do');
+  const inProgress = tasks.filter((t) => t.status === 'In Progress');
+  const completed = tasks.filter((t) => t.status === 'Completed');
+
+  const TaskCard = ({ task }) => (
+    <div style={s.taskCard} onClick={() => navigate(`/tasks/${task.task_id}`)}>
+      <p style={s.cardTitle}>{task.title}</p>
+      <PriorityTag value={task.priority} />
+      <p style={s.cardAssignee}>{getAssigneeName(task.assigned_to)}</p>
+      {task.due_date && <p style={s.cardDue}>Due {new Date(task.due_date).toLocaleDateString()}</p>}
+      <div style={s.cardActions} onClick={(e) => e.stopPropagation()}>
+        {task.status !== 'To Do' && <button style={s.moveBtn} onClick={() => handleStatusChange(task.task_id, 'To Do')}>← To Do</button>}
+        {task.status !== 'In Progress' && <button style={s.moveBtn} onClick={() => handleStatusChange(task.task_id, 'In Progress')}>In Progress</button>}
+        {task.status !== 'Completed' && <button style={s.moveBtn} onClick={() => handleStatusChange(task.task_id, 'Completed')}>Done →</button>}
+      </div>
+    </div>
+  );
 
   return (
-    <div style={styles.content}>
-      <div style={styles.header}>
-        <h2 style={styles.pageTitle}>Task Management</h2>
-        <div style={styles.headerActions}>
-          <button
-            style={styles.kanbanBtn}
-            onClick={() => navigate('/tasks/kanban')}
-          >
-            Kanban View
-          </button>
-          {canCreateTask && (
-            <button
-              style={styles.button}
-              onClick={() => navigate('/tasks/new')}
-            >
-              + Create Task
-            </button>
-          )}
+    <div style={s.page}>
+      <div style={s.header}>
+        <div>
+          <h1 style={s.title}>All tasks</h1>
+          <p style={s.subtitle}>Every task across every project.</p>
+        </div>
+        <div style={s.viewToggle}>
+          <div style={view === 'list' ? s.toggleActive : s.toggle} onClick={() => setView('list')}>List</div>
+          <div style={view === 'kanban' ? s.toggleActive : s.toggle} onClick={() => setView('kanban')}>Kanban</div>
         </div>
       </div>
 
-      {error && <div style={styles.error}>{error}</div>}
+      {error && <div style={s.alertError}>{error}</div>}
 
-      <div style={styles.toolbar}>
-        <select
-          style={styles.select}
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-        >
-          <option value="">All Statuses</option>
-          <option value="To Do">To Do</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Completed">Completed</option>
-        </select>
-
-        <select
-          style={styles.select}
-          value={priorityFilter}
-          onChange={(e) => setPriorityFilter(e.target.value)}
-        >
-          <option value="">All Priorities</option>
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-        </select>
-      </div>
+      {view === 'list' && (
+        <div style={s.toolbar}>
+          <select style={s.select} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+            <option value="">All statuses</option><option value="To Do">To Do</option><option value="In Progress">In Progress</option><option value="Completed">Completed</option>
+          </select>
+          <select style={s.select} value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)}>
+            <option value="">All priorities</option><option value="Low">Low</option><option value="Medium">Medium</option><option value="High">High</option>
+          </select>
+        </div>
+      )}
 
       {loading ? (
-        <div style={styles.loading}>Loading tasks...</div>
+        <div style={s.loading}>Loading tasks...</div>
+      ) : view === 'list' ? (
+        <div style={s.tableWrap}>
+          <table style={s.table}>
+            <thead>
+              <tr><th style={s.th}>Title</th><th style={s.th}>Priority</th><th style={s.th}>Status</th><th style={s.th}>Assigned to</th><th style={s.th}>Due date</th><th style={s.th}></th></tr>
+            </thead>
+            <tbody>
+              {tasks.map((task) => (
+                <tr key={task.task_id} style={s.tr}>
+                  <td style={s.td}>{task.title}</td>
+                  <td style={s.td}><PriorityTag value={task.priority} /></td>
+                  <td style={s.td}><span style={{ color: statusColor(task.status), fontWeight: 500, fontSize: '13px' }}>{task.status}</span></td>
+                  <td style={s.td}>{getAssigneeName(task.assigned_to)}</td>
+                  <td style={s.td}>{task.due_date ? new Date(task.due_date).toLocaleDateString() : '—'}</td>
+                  <td style={s.td}><button style={s.viewBtn} onClick={() => navigate(`/tasks/${task.task_id}`)}>View</button></td>
+                </tr>
+              ))}
+              {tasks.length === 0 && <tr><td colSpan={6} style={s.empty}>No tasks found</td></tr>}
+            </tbody>
+          </table>
+        </div>
       ) : (
-        <table style={styles.table}>
-          <thead>
-            <tr>
-              <th style={styles.th}>Title</th>
-              <th style={styles.th}>Priority</th>
-              <th style={styles.th}>Status</th>
-              <th style={styles.th}>Due Date</th>
-              <th style={styles.th}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tasks.map((task) => (
-              <tr key={task.task_id} style={styles.tr}>
-                <td style={styles.td}>{task.title}</td>
-                <td style={styles.td}>
-                  <span style={{ color: getPriorityColor(task.priority), fontWeight: '500' }}>
-                    {task.priority}
-                  </span>
-                </td>
-                <td style={styles.td}>
-                  <span style={{ color: getStatusColor(task.status), fontWeight: '500' }}>
-                    {task.status}
-                  </span>
-                </td>
-                <td style={styles.td}>
-                  {task.due_date ? new Date(task.due_date).toLocaleDateString() : '—'}
-                </td>
-                <td style={styles.td}>
-                  <button
-                    style={styles.viewBtn}
-                    onClick={() => navigate(`/tasks/${task.task_id}`)}
-                  >
-                    View
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {tasks.length === 0 && (
-              <tr>
-                <td colSpan={5} style={styles.empty}>No tasks found</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+        <div style={s.board}>
+          {[{ label: 'To Do', items: todo, color: theme.color.inkSoft }, { label: 'In Progress', items: inProgress, color: theme.color.accent }, { label: 'Completed', items: completed, color: theme.color.success }].map((col) => (
+            <div key={col.label} style={s.column}>
+              <div style={{ ...s.columnHeader, borderTop: `2px solid ${col.color}` }}>
+                <span>{col.label}</span><span style={s.badge}>{col.items.length}</span>
+              </div>
+              {col.items.map((t) => <TaskCard key={t.task_id} task={t} />)}
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
 };
 
-const styles = {
-  content: { padding: '24px', backgroundColor: '#f0f2f5', minHeight: '100%' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' },
-  headerActions: { display: 'flex', gap: '12px' },
-  pageTitle: { fontSize: '22px', color: '#1a1a2e', margin: 0 },
-  toolbar: { display: 'flex', gap: '12px', marginBottom: '20px' },
-  select: { padding: '8px 12px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' },
-  button: { padding: '8px 16px', backgroundColor: '#4f46e5', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' },
-  kanbanBtn: { padding: '8px 16px', backgroundColor: '#fff', color: '#4f46e5', border: '1px solid #4f46e5', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' },
-  table: { width: '100%', borderCollapse: 'collapse', backgroundColor: '#fff', borderRadius: '8px' },
-  th: { padding: '12px 16px', textAlign: 'left', backgroundColor: '#f8f9fa', fontSize: '13px', color: '#555' },
-  tr: { borderBottom: '1px solid #f0f0f0' },
-  td: { padding: '12px 16px', fontSize: '14px', color: '#333' },
-  empty: { padding: '24px', textAlign: 'center', color: '#999' },
-  viewBtn: { padding: '4px 10px', backgroundColor: '#ede9fe', color: '#4f46e5', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' },
-  error: { backgroundColor: '#fee2e2', color: '#dc2626', padding: '10px 12px', borderRadius: '4px', marginBottom: '16px', fontSize: '14px' },
-  loading: { textAlign: 'center', padding: '40px', color: '#666' },
+const PriorityTag = ({ value }) => (
+  <span style={{ fontSize: '12.5px', fontWeight: 500, color: priorityColor(value), display: 'inline-flex', alignItems: 'center', gap: '5px', margin: '4px 0' }}>
+    <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: priorityColor(value) }} />{value}
+  </span>
+);
+
+const s = {
+  page: { padding: '28px 28px', width: '100%', boxSizing: 'border-box' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' },
+  title: { fontSize: '22px', fontWeight: 700, color: theme.color.ink, margin: '0 0 4px 0', fontFamily: theme.font.body, letterSpacing: '-0.01em' },
+  subtitle: { fontSize: '13.5px', color: theme.color.inkSoft, margin: 0, fontFamily: theme.font.body },
+  viewToggle: { display: 'flex', backgroundColor: theme.color.surface, borderRadius: theme.radius.sm, overflow: 'hidden', border: `1px solid ${theme.color.border}` },
+  toggle: { padding: '7px 16px', cursor: 'pointer', fontSize: '13px', color: theme.color.inkSoft, fontFamily: theme.font.body, fontWeight: 500 },
+  toggleActive: { padding: '7px 16px', cursor: 'pointer', fontSize: '13px', color: '#fff', backgroundColor: theme.color.accent, fontFamily: theme.font.body, fontWeight: 500 },
+  toolbar: { display: 'flex', gap: '10px', marginBottom: '18px' },
+  select: { padding: '9px 12px', border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.sm, fontSize: '13.5px', fontFamily: theme.font.body, color: theme.color.ink },
+  tableWrap: { backgroundColor: theme.color.surface, borderRadius: theme.radius.md, border: `1px solid ${theme.color.border}`, overflow: 'hidden' },
+  table: { width: '100%', borderCollapse: 'collapse' },
+  th: { padding: '11px 16px', textAlign: 'left', backgroundColor: '#FAFAFB', fontSize: '11.5px', color: theme.color.inkSoft, fontWeight: 600, fontFamily: theme.font.body, borderBottom: `1px solid ${theme.color.border}` },
+  tr: { borderBottom: `1px solid ${theme.color.border}` },
+  td: { padding: '12px 16px', fontSize: '13.5px', color: theme.color.ink, fontFamily: theme.font.body },
+  empty: { padding: '24px', textAlign: 'center', color: theme.color.inkFaint, fontFamily: theme.font.body },
+  viewBtn: { padding: '5px 11px', backgroundColor: theme.color.accentSoft, color: theme.color.accent, border: 'none', borderRadius: theme.radius.sm, cursor: 'pointer', fontSize: '12.5px', fontWeight: 500, fontFamily: theme.font.body },
+  alertError: { backgroundColor: theme.color.dangerSoft, color: theme.color.danger, padding: '10px 14px', borderRadius: theme.radius.sm, marginBottom: '16px', fontSize: '13.5px', fontFamily: theme.font.body },
+  loading: { textAlign: 'center', padding: '40px', color: theme.color.inkSoft, fontFamily: theme.font.body },
+  board: { display: 'flex', gap: '14px', alignItems: 'flex-start' },
+  column: { flex: 1, backgroundColor: theme.color.surface, borderRadius: theme.radius.md, padding: '14px', minHeight: '400px', border: `1px solid ${theme.color.border}` },
+  columnHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0 14px 0', fontWeight: 600, fontSize: '14px', color: theme.color.ink, fontFamily: theme.font.body },
+  badge: { backgroundColor: theme.color.bg, color: theme.color.inkSoft, padding: '2px 8px', borderRadius: '20px', fontSize: '12px', fontFamily: theme.font.body },
+  taskCard: { backgroundColor: theme.color.bg, borderRadius: theme.radius.sm, padding: '12px', marginBottom: '8px', cursor: 'pointer', border: `1px solid ${theme.color.border}` },
+  cardTitle: { fontSize: '13.5px', fontWeight: 600, color: theme.color.ink, margin: '0 0 2px 0', fontFamily: theme.font.body },
+  cardAssignee: { fontSize: '12px', color: theme.color.inkSoft, margin: '2px 0 4px 0', fontFamily: theme.font.body },
+  cardDue: { fontSize: '11.5px', color: theme.color.inkFaint, margin: '0 0 8px 0', fontFamily: theme.font.body },
+  cardActions: { display: 'flex', gap: '5px', flexWrap: 'wrap' },
+  moveBtn: { padding: '3px 8px', backgroundColor: theme.color.accentSoft, color: theme.color.accent, border: 'none', borderRadius: theme.radius.sm, cursor: 'pointer', fontSize: '10.5px', fontFamily: theme.font.body, fontWeight: 500 },
 };
 
 export default TasksPage;

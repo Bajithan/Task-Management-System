@@ -8,36 +8,31 @@ const getAuthHeader = () => {
 };
 
 export const getAllProjects = async () => {
-  const response = await axios.get(`${API_URL}/projects`, {
-    headers: getAuthHeader(),
-  });
+  const response = await axios.get(`${API_URL}/projects`, { headers: getAuthHeader() });
+  return response.data;
+};
+
+export const getProjectNames = async () => {
+  const response = await axios.get(`${API_URL}/projects/names`, { headers: getAuthHeader() });
   return response.data;
 };
 
 export const getProjectById = async (id) => {
-  const response = await axios.get(`${API_URL}/projects/${id}`, {
-    headers: getAuthHeader(),
-  });
+  const response = await axios.get(`${API_URL}/projects/${id}`, { headers: getAuthHeader() });
   return response.data;
 };
 
 export const createProject = async (data) => {
-  const response = await axios.post(`${API_URL}/projects`, data, {
-    headers: getAuthHeader(),
-  });
+  const response = await axios.post(`${API_URL}/projects`, data, { headers: getAuthHeader() });
   return response.data;
 };
 
 export const updateProject = async (id, data) => {
-  const response = await axios.put(`${API_URL}/projects/${id}`, data, {
-    headers: getAuthHeader(),
-  });
+  const response = await axios.put(`${API_URL}/projects/${id}`, data, { headers: getAuthHeader() });
   return response.data;
 };
 
 export const deleteProject = async (id) => {
-  const response = await axios.delete(`${API_URL}/projects/${id}`, {
-    headers: getAuthHeader(),
-  });
+  const response = await axios.delete(`${API_URL}/projects/${id}`, { headers: getAuthHeader() });
   return response.data;
 };
