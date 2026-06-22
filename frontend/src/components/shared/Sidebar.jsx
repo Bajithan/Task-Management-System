@@ -23,7 +23,7 @@ const Sidebar = () => {
   return (
     <div style={s.sidebar}>
       <div style={s.header}>
-        <span style={s.logo}>TMS</span>
+        <span style={s.logo}>Task Management System</span>
         <span style={s.roleBadge}>{user?.role}</span>
       </div>
 
