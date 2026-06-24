@@ -18,6 +18,7 @@ import MyTasksPage from './pages/tasks/MyTasksPage';
 import NotificationsPage from './pages/notifications/NotificationsPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import ProfilePage from './pages/dashboard/ProfilePage';
+import ForceResetPasswordPage from './pages/auth/ForceResetPasswordPage';
 
 const Layout = ({ children }) => {
   return (
@@ -51,6 +52,11 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+
+        {/* Password reset pending routes */}
+        <Route element={<ProtectedRoute allowPasswordResetPending={true} />}>
+          <Route path="/force-reset-password" element={<ForceResetPasswordPage />} />
+        </Route>
 
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<HomeRedirect />} />

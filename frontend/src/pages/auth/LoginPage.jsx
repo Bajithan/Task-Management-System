@@ -19,7 +19,11 @@ const LoginPage = () => {
     try {
       const res = await authApi.login(email, password);
       login(res.data.user, res.data.token);
-      navigate(getHomeRouteForRole(res.data.user.role));
+      if (res.data.mustResetPassword) {
+        navigate('/force-reset-password');
+      } else {
+        navigate(getHomeRouteForRole(res.data.user.role));
+      }
     } catch (err) {
       setError(err.response?.data?.error?.message || 'Login failed');
     } finally {

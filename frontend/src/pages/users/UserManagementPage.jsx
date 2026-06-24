@@ -2,12 +2,14 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import usersApi from '../../api/usersApi';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
+import { useAuth } from '../../context/AuthContext';
 import { theme } from '../../styles/theme';
 
 const ROLES = ['Admin', 'Project Manager', 'Collaborator'];
 
 const UserManagementPage = () => {
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -41,9 +43,10 @@ const UserManagementPage = () => {
   const handleCreate = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     try {
-      await usersApi.createUser(form);
-      setSuccess('User created successfully.');
+      const res = await usersApi.createUser(form);
+      setSuccess(`User created successfully. Temporary Password: ${res.data.tempPassword} (An email has also been sent)`);
       setShowModal(false);
       setForm({ first_name: '', last_name: '', email: '', role: 'Collaborator' });
       fetchUsers();
@@ -54,12 +57,27 @@ const UserManagementPage = () => {
 
   const handleDeactivate = async (userId) => {
     if (!window.confirm('Deactivate this user?')) return;
+    setError('');
+    setSuccess('');
     try {
       await usersApi.deactivateUser(userId);
       setSuccess('User deactivated');
       fetchUsers();
     } catch (err) {
       setError('Failed to deactivate user');
+    }
+  };
+
+  const handleResetPassword = async (userId) => {
+    if (!window.confirm('Are you sure you want to reset this user\'s password? A new temporary password will be generated.')) return;
+    setError('');
+    setSuccess('');
+    try {
+      const res = await usersApi.resetUserPassword(userId);
+      setSuccess(`Password reset successfully for ${res.data.user.first_name}. Temporary Password: ${res.data.tempPassword} (Copy this now. An email has also been sent)`);
+      fetchUsers();
+    } catch (err) {
+      setError(err.response?.data?.error?.message || 'Failed to reset password');
     }
   };
 
@@ -122,11 +140,21 @@ const UserManagementPage = () => {
                     </span>
                   </td>
                   <td style={s.td}>
-                    {user.is_active && (
-                      <button style={s.deactivateBtn} onClick={() => handleDeactivate(user.user_id)}>
-                        Deactivate
-                      </button>
-                    )}
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      {user.is_active && user.user_id !== currentUser?.user_id && (
+                        <button style={s.resetBtn} onClick={() => handleResetPassword(user.user_id)}>
+                          Reset Password
+                        </button>
+                      )}
+                      {user.is_active && user.user_id !== currentUser?.user_id && (
+                        <button style={s.deactivateBtn} onClick={() => handleDeactivate(user.user_id)}>
+                          Deactivate
+                        </button>
+                      )}
+                      {user.user_id === currentUser?.user_id && (
+                        <span style={{ color: theme.color.inkFaint, fontSize: '13px', fontStyle: 'italic' }}>Current User</span>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -206,6 +234,7 @@ const s = {
   statusInactive: { display: 'inline-flex', alignItems: 'center', gap: '6px', color: theme.color.danger, fontWeight: 500, fontSize: '13px' },
   statusDot: { width: '6px', height: '6px', borderRadius: '50%' },
   deactivateBtn: { padding: '5px 11px', backgroundColor: theme.color.dangerSoft, color: theme.color.danger, border: 'none', borderRadius: theme.radius.sm, cursor: 'pointer', fontSize: '12.5px', fontWeight: 500, fontFamily: theme.font.body },
+  resetBtn: { padding: '5px 11px', backgroundColor: theme.color.accentSoft, color: theme.color.accent, border: 'none', borderRadius: theme.radius.sm, cursor: 'pointer', fontSize: '12.5px', fontWeight: 500, fontFamily: theme.font.body },
   alertError: { backgroundColor: theme.color.dangerSoft, color: theme.color.danger, padding: '10px 14px', borderRadius: theme.radius.sm, marginBottom: '16px', fontSize: '13.5px', fontFamily: theme.font.body },
   alertSuccess: { backgroundColor: theme.color.successSoft, color: theme.color.success, padding: '10px 14px', borderRadius: theme.radius.sm, marginBottom: '16px', fontSize: '13.5px', fontFamily: theme.font.body },
   overlay: { position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },

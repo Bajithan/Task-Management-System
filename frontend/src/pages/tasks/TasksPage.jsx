@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getTasks, updateTaskStatus } from '../../api/tasksApi';
 import usersApi from '../../api/usersApi';
+import { useWebSocket } from '../../hooks/useWebSocket';
 import { theme, statusColor, priorityColor } from '../../styles/theme';
 
 const TasksPage = () => {
@@ -16,6 +17,26 @@ const TasksPage = () => {
 
   useEffect(() => { fetchUsers(); }, []);
   useEffect(() => { fetchTasks(); }, [statusFilter, priorityFilter]);
+
+  const { socket } = useWebSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleUpdate = () => {
+      fetchTasks();
+    };
+
+    socket.on('task-assigned', handleUpdate);
+    socket.on('status-changed', handleUpdate);
+    socket.on('task-updated', handleUpdate);
+
+    return () => {
+      socket.off('task-assigned', handleUpdate);
+      socket.off('status-changed', handleUpdate);
+      socket.off('task-updated', handleUpdate);
+    };
+  }, [socket]);
 
   const fetchUsers = async () => {
     try { const res = await usersApi.getAssignableUsers(); setAssignableUsers(res.data); }

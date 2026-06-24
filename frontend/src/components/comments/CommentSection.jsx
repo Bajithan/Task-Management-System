@@ -1,27 +1,44 @@
 import { useState, useEffect } from 'react';
 import { getComments, createComment, deleteComment } from '../../api/commentsApi';
+import { useWebSocket } from '../../hooks/useWebSocket';
 
 const CommentSection = ({ taskId }) => {
     const [comments, setComments] = useState([]);
     const [newCommentText, setNewCommentText] = useState('');
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchComments = async () => {
-            try {
-                const data = await getComments(taskId);
-                setComments(data);
-            } catch (error) {
-                console.error("Error loading comments:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
+    const fetchComments = async () => {
+        try {
+            const data = await getComments(taskId);
+            setComments(data);
+        } catch (error) {
+            console.error("Error loading comments:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
+    useEffect(() => {
         if (taskId) {
             fetchComments();
         }
     }, [taskId]);
+
+    const { socket } = useWebSocket();
+
+    useEffect(() => {
+        if (!socket || !taskId) return;
+
+        const handleNewComment = () => {
+            fetchComments();
+        };
+
+        socket.on('comment-added', handleNewComment);
+
+        return () => {
+            socket.off('comment-added', handleNewComment);
+        };
+    }, [socket, taskId]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

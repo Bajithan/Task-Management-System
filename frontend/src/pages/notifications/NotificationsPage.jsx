@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getNotifications, markAllAsRead, markAsRead } from '../../api/notificationsApi';
+import { useWebSocket } from '../../hooks/useWebSocket';
 import { theme } from '../../styles/theme';
 
 const NotificationsPage = () => {
@@ -7,19 +8,48 @@ const NotificationsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const fetchNotifications = async () => {
+    try {
+      const data = await getNotifications();
+      setNotifications(data);
+    } catch {
+      setError('Failed to load notifications');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const data = await getNotifications();
-        setNotifications(data);
-      } catch {
-        setError('Failed to load notifications');
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchNotifications();
   }, []);
+
+  const { socket } = useWebSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleUpdate = () => {
+      fetchNotifications();
+    };
+
+    socket.on('notifications-updated', handleUpdate);
+    socket.on('task-assigned', handleUpdate);
+    socket.on('status-changed', handleUpdate);
+    socket.on('comment-added', handleUpdate);
+    socket.on('deadline-approaching', handleUpdate);
+    socket.on('administrative-update', handleUpdate);
+    socket.on('task-updated', handleUpdate);
+
+    return () => {
+      socket.off('notifications-updated', handleUpdate);
+      socket.off('task-assigned', handleUpdate);
+      socket.off('status-changed', handleUpdate);
+      socket.off('comment-added', handleUpdate);
+      socket.off('deadline-approaching', handleUpdate);
+      socket.off('administrative-update', handleUpdate);
+      socket.off('task-updated', handleUpdate);
+    };
+  }, [socket]);
 
   const handleMarkAllRead = async () => {
     try {
@@ -54,11 +84,18 @@ const NotificationsPage = () => {
             {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
           </p>
         </div>
-        {unreadCount > 0 && (
-          <button style={s.markAllBtn} onClick={handleMarkAllRead}>
-            Mark all as read
-          </button>
-        )}
+        <div style={{ display: 'flex', gap: '8px' }}>
+          {unreadCount > 0 && (
+            <button style={s.markAllBtn} onClick={handleMarkAllRead}>
+              Mark all as read
+            </button>
+          )}
+          {notifications.length > 0 && (
+            <button style={s.clearBtn} onClick={() => setNotifications([])}>
+              Clear
+            </button>
+          )}
+        </div>
       </div>
 
       {error && <div style={s.alertError}>{error}</div>}
@@ -104,6 +141,7 @@ const s = {
   title: { fontSize: '22px', fontWeight: 700, color: theme.color.ink, margin: '0 0 4px 0', fontFamily: theme.font.body, letterSpacing: '-0.01em' },
   subtitle: { fontSize: '13.5px', color: theme.color.inkSoft, margin: 0, fontFamily: theme.font.body },
   markAllBtn: { padding: '8px 16px', backgroundColor: theme.color.surface, color: theme.color.accent, border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.sm, cursor: 'pointer', fontSize: '13.5px', fontWeight: 500, fontFamily: theme.font.body, flexShrink: 0 },
+  clearBtn: { padding: '8px 16px', backgroundColor: theme.color.surface, color: theme.color.inkSoft, border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.sm, cursor: 'pointer', fontSize: '13.5px', fontWeight: 500, fontFamily: theme.font.body, flexShrink: 0 },
   list: { display: 'flex', flexDirection: 'column', gap: '8px' },
   item: { display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 18px', borderRadius: theme.radius.md, border: `1px solid ${theme.color.border}`, cursor: 'pointer' },
   itemUnread: { backgroundColor: theme.color.accentSoft, borderColor: `${theme.color.accent}30` },

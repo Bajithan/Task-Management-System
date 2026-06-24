@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getTasks } from '../../api/tasksApi';
 import { getProjectNames } from '../../api/projectsApi';
 import { useAuth } from '../../context/AuthContext';
+import { useWebSocket } from '../../hooks/useWebSocket';
 import { theme, statusColor, priorityColor } from '../../styles/theme';
 
 const TABS = ['All', 'To Do', 'In Progress', 'Completed'];
@@ -17,6 +18,26 @@ const MyTasksPage = () => {
   const [error, setError] = useState('');
 
   useEffect(() => { fetchData(); }, []);
+
+  const { socket } = useWebSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleUpdate = () => {
+      fetchData();
+    };
+
+    socket.on('task-assigned', handleUpdate);
+    socket.on('status-changed', handleUpdate);
+    socket.on('task-updated', handleUpdate);
+
+    return () => {
+      socket.off('task-assigned', handleUpdate);
+      socket.off('status-changed', handleUpdate);
+      socket.off('task-updated', handleUpdate);
+    };
+  }, [socket]);
 
   const fetchData = async () => {
     setLoading(true);

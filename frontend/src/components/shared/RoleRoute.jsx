@@ -6,6 +6,10 @@ const RoleRoute = ({ element, allowedRoles }) => {
 
   if (!user) return <Navigate to="/login" replace />;
 
+  if (user?.must_reset_password) {
+    return <Navigate to="/force-reset-password" replace />;
+  }
+
   if (!allowedRoles.includes(user.role)) {
     return <Navigate to={getHomeRouteForRole(user.role)} replace />;
   }

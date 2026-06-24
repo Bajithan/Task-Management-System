@@ -1,7 +1,9 @@
 // frontend/src/api/commentsApi.js
 
 // This is the address of the backend we just built
-const API_URL = 'http://localhost:5000/api/comments';
+const API_URL = import.meta.env.VITE_API_URL 
+    ? `${import.meta.env.VITE_API_URL}/comments`
+    : 'http://localhost:5000/api/comments';
 
 // We need to grab the user's secret "badge" (token) to prove they are logged in
 const getAuthHeaders = () => {
@@ -18,7 +20,8 @@ export const getComments = async (taskId) => {
         headers: getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to fetch comments');
-    return await response.json();
+    const json = await response.json();
+    return json.data;
 };
 
 // 2. Add a new comment
@@ -29,7 +32,8 @@ export const createComment = async (taskId, text) => {
         body: JSON.stringify({ taskId, text }),
     });
     if (!response.ok) throw new Error('Failed to create comment');
-    return await response.json();
+    const json = await response.json();
+    return json.data;
 };
 
 // 3. Delete a comment
@@ -39,5 +43,6 @@ export const deleteComment = async (commentId) => {
         headers: getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to delete comment');
-    return await response.json();
+    const json = await response.json();
+    return json.data;
 };

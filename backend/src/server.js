@@ -3,12 +3,16 @@ const { PORT } = require('./config/env');
 const http = require('http');
 
 // 1. Bring in the WebSocket tool we just built
-const { initializeWebSocket } = require('./websocket/socket'); 
+const { initializeWebSocket, startDeadlineChecks } = require('./websocket/socket'); 
 
 const httpServer = http.createServer(app);
 
 // 2. Turn the WebSocket server on
-initializeWebSocket(httpServer); 
+const io = initializeWebSocket(httpServer); 
+app.set('io', io);
+
+// 3. Start checking for approaching deadlines
+startDeadlineChecks(io);
 
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

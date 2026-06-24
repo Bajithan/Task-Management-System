@@ -30,6 +30,9 @@ const usersApi = {
 
   getAssignableUsers: () =>
     API.get('/users/assignable').then((r) => r.data),
+
+  resetUserPassword: (id) =>
+    API.post(`/users/${id}/reset-password`).then((r) => r.data),
 };
 
 export default usersApi;

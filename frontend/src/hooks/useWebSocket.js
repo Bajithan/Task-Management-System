@@ -3,7 +3,9 @@ import { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 
 // The address of our backend server
-const SOCKET_SERVER_URL = 'http://localhost:5000';
+const SOCKET_SERVER_URL = import.meta.env.VITE_API_URL
+    ? import.meta.env.VITE_API_URL.replace('/api', '')
+    : 'http://localhost:5000';
 
 export const useWebSocket = () => {
     // Keep track of the connection so other parts of the app can use it
@@ -37,6 +39,15 @@ export const useWebSocket = () => {
         socketInstance.on('disconnect', () => {
             console.log('🔴 Disconnected from WebSocket server.');
             setIsConnected(false);
+        });
+
+        // Handle connection or authentication errors
+        socketInstance.on('connect_error', (err) => {
+            console.error('🔴 WebSocket connection error:', err.message);
+            if (err.message.includes('Authentication error') || err.message.includes('auth')) {
+                console.log('Stopping reconnection attempts due to authentication failure.');
+                socketInstance.disconnect();
+            }
         });
 
         // Save the live connection to our state

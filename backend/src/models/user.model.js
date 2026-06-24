@@ -1,10 +1,12 @@
 const supabase = require('../config/db');
 
 const findByEmail = async (email) => {
+  if (!email) return null;
+  const normalizedEmail = email.toLowerCase().trim();
   const { data, error } = await supabase
     .from('Users')
     .select('*')
-    .eq('email', email)
+    .eq('email', normalizedEmail)
     .single();
   if (error) return null;
   return data;

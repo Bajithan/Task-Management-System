@@ -4,6 +4,7 @@ import { getTaskById, updateTask, updateTaskStatus, deleteTask } from '../../api
 import { getProjectNames } from '../../api/projectsApi';
 import usersApi from '../../api/usersApi';
 import { useAuth } from '../../context/AuthContext';
+import { useWebSocket } from '../../hooks/useWebSocket';
 import CommentSection from '../../components/comments/CommentSection';
 import { theme, statusColor, priorityColor } from '../../styles/theme';
 
@@ -26,6 +27,26 @@ const TaskDetailPage = () => {
   const [editForm, setEditForm] = useState(null);
 
   useEffect(() => { fetchData(); }, [id]);
+
+  const { socket } = useWebSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleUpdate = () => {
+      fetchData();
+    };
+
+    socket.on('task-assigned', handleUpdate);
+    socket.on('status-changed', handleUpdate);
+    socket.on('task-updated', handleUpdate);
+
+    return () => {
+      socket.off('task-assigned', handleUpdate);
+      socket.off('status-changed', handleUpdate);
+      socket.off('task-updated', handleUpdate);
+    };
+  }, [socket, id]);
 
   const fetchData = async () => {
     setLoading(true);

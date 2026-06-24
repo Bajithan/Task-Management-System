@@ -41,4 +41,20 @@ const resetPassword = async (req, res, next) => {
   }
 };
 
-module.exports = { login, forgotPassword, resetPassword };
+const forceResetPassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user.user_id;
+
+    if (!currentPassword || !newPassword) {
+      return errorResponse(res, 'Both currentPassword and newPassword are required', 400);
+    }
+
+    const result = await authService.forceResetPassword(userId, currentPassword, newPassword);
+    return successResponse(res, result, 'Password changed successfully');
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { login, forgotPassword, resetPassword, forceResetPassword };

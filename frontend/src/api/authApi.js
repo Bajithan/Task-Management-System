@@ -21,6 +21,9 @@ const authApi = {
 
   resetPassword: (email, token, newPassword) =>
     API.post('/auth/reset-password', { email, token, newPassword }).then((r) => r.data),
+
+  forceResetPassword: (currentPassword, newPassword) =>
+    API.post('/auth/force-reset-password', { currentPassword, newPassword }).then((r) => r.data),
 };
 
 export default authApi;

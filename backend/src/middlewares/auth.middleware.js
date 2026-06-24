@@ -13,6 +13,14 @@ const authenticate = (req, res, next) => {
   try {
     const decoded = verifyToken(token);
     req.user = decoded;
+
+    // Enforce mandatory password change if must_reset_password is true
+    // Allow access ONLY to the force-reset-password API
+    const pathName = req.originalUrl.split('?')[0];
+    if (decoded.must_reset_password && pathName !== '/api/auth/force-reset-password') {
+      return errorResponse(res, 'Password reset required before accessing this resource', 403, 'PASSWORD_RESET_REQUIRED');
+    }
+
     next();
   } catch (err) {
     return errorResponse(res, 'Invalid or expired token', 401);

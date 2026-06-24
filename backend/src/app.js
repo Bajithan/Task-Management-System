@@ -6,7 +6,7 @@ const { setupSwagger } = require('./swagger/swagger');
 
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
- const projectRoutes = require('./routes/project.routes');
+const projectRoutes = require('./routes/project.routes');
 // MEMBER 3 — uncomment when your branch is merged:
 const taskRoutes = require('./routes/task.routes');
 // MEMBER 4 — uncomment when your branch is merged:
