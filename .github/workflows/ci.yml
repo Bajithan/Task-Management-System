@@ -27,6 +27,7 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          VITE_API_URL: "https://taskmanagement-backend-etgbh8czdzhyaucv.southeastasia-01.azurewebsites.net/api"
         run: npx --yes jest --passWithNoTests
 
   frontend-build:
