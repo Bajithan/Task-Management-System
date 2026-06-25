@@ -1,0 +1,14 @@
+body {
+  margin: 0;
+  font-family: "Inter", -apple-system, sans-serif;
+  background-color: #F8F9FB;
+  color: #18181B;
+}
+
+#root {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  min-height: 100vh;
+}
