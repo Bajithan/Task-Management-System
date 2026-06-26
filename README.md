@@ -2,7 +2,7 @@
 
 A real-time, full-stack collaborative task management application designed for seamless team coordination.
 
-## 🛠️ Technologies Used
+##  Technologies Used
 
 * **Frontend:** React.js (Vite), Socket.io-client, Axios (API requests), Recharts (graph widgets), Vanilla CSS
 * **Backend:** Node.js, Express.js, Socket.io (WebSocket), JWT (authentication), BcryptJS (password encryption)
@@ -10,7 +10,7 @@ A real-time, full-stack collaborative task management application designed for s
 * **Testing:** Jest & Supertest (functional routes and database suite)
 * **DevOps & Cloud:** Docker, Docker-compose, GitHub Actions CI/CD, Microsoft Azure (App Service & Static Web Apps)
 
-## 📂 Folder Structure
+##  Folder Structure
 
 ```text
 task-management-system/
@@ -36,9 +36,9 @@ task-management-system/
 
 ---
 
-## 👥 Team Member Contributions & Deliverables
+## Team Member Contributions & Deliverables
 
-### 🥇 BAJITHAN S. — Auth, User Management, DevOps, Project Lead
+###  BAJITHAN S. — Auth, User Management, DevOps, Project Lead
 #### Backend:
 * **Authentication:** Login, logout, forgot password, and reset password flows.
 * **Tokens:** JWT generation, signing, and verification.
@@ -62,7 +62,7 @@ task-management-system/
 
 ---
 
-### 🥈 GAJANAN M. — Projects Module
+###  GAJANAN M. — Projects Module
 #### Backend:
 * **CRUD:** Project create, list, view, update, and delete endpoints.
 * **Management:** Project status state transitions.
@@ -76,7 +76,7 @@ task-management-system/
 
 ---
 
-### 🥉 KOVUZAR S.S. — Tasks Module
+### KOVUZAR S.S. — Tasks Module
 #### Backend:
 * **CRUD:** Task create, view, update, and delete endpoints.
 * **Querying:** Task filtering and sorting.
@@ -91,7 +91,7 @@ task-management-system/
 
 ---
 
-### 🏅 THUVARAKAN F.R. — Comments, Notifications, WebSocket
+### THUVARAKAN F.R. — Comments, Notifications, WebSocket
 #### Backend:
 * **Collaboration:** Comment create, list, and delete endpoints.
 * **Alerts:** Notification list, mark read, and mark all read.
@@ -108,7 +108,7 @@ task-management-system/
 
 ---
 
-### 🏅 NUHA M.N.F — Dashboard, Security, Testing
+###  NUHA M.N.F — Dashboard, Security, Testing
 #### Backend:
 * **Metrics:** Dashboard summary stats (counts of tasks by status, priority, overdue state, and project progress).
 * **User Profile:** Logged-in profile view and update.
@@ -124,19 +124,19 @@ task-management-system/
 
 ---
 
-## 🌐 Deployment & Demo Links
+## Deployment & Demo Links
 
-* **Live Frontend Demo (Azure SWA):** `https://your-frontend-deployment-url.azurestaticapps.net`
-* **Live Hosted Backend API (Azure App Service):** `https://your-backend-deployment-url.azurewebsites.net`
-* **Production API Documentation (Swagger):** `https://your-backend-deployment-url.azurewebsites.net/api/docs`
-* **Azure Container Registry (ACR):** `your-registry-name.azurecr.io/task-management-backend`
+* **Live Frontend Demo (Azure SWA):** `https://nice-ground-0784c2100.7.azurestaticapps.net`
+* **Live Hosted Backend API (Azure App Service):** `https://taskmanagement-backend-etgbh8czdzhyaucv.southeastasia-01.azurewebsites.net`
+* **Production API Documentation (Swagger):** `https://taskmanagement-backend-etgbh8czdzhyaucv.southeastasia-01.azurewebsites.net/api/docs`
+* **Azure Container Registry (ACR):** `taskmanageregistry.azurecr.io/task-management-backend`
 
 ---
-## ⚙️ Setup & Run Instructions
+##  Setup & Run Instructions
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/task-management-system.git
+git clone https://github.com/Bajithan/Task-Management-System.git
 cd task-management-system
 ```
 
@@ -180,7 +180,7 @@ Run the SQL queries in your Supabase SQL Editor to create the tables with the fo
    * `SUPABASE_URL`: Your Supabase API connection URL
    * `SUPABASE_ANON_KEY`: Your Supabase anonymous client API key
    * `JWT_SECRET`: A secure signing key for JWT token hashing
-   * `JWT_EXPIRES_IN`: JWT expiration window (e.g., `7d`)
+   * `JWT_EXPIRES_IN`: JWT expiration window 
    * `CLIENT_URL`: Allowed cross-origin (CORS) frontend host address (default: `http://localhost:5173`)
 5. Start the backend development server:
    ```bash
@@ -226,4 +226,4 @@ To verify the system security, routing, and controllers:
 
 ### 6. API Documentation
 * Access the Swagger OpenAPI REST endpoint specs by visiting:
-  👉 **`http://localhost:5000/api/docs`**
+   **`http://localhost:5000/api/docs`**
