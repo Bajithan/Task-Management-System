@@ -47,7 +47,7 @@ const getUserById = async (userId) => {
   return user;
 };
 
-const updateUser = async (userId, updates) => {
+const updateUser = async (userId, updates, requesterUserId) => {
   const user = await userModel.findById(userId);
   if (!user) throw { statusCode: 404, message: 'User not found' };
 
@@ -55,6 +55,11 @@ const updateUser = async (userId, updates) => {
     const allowedRoles = ['Admin', 'Project Manager', 'Collaborator'];
     if (!allowedRoles.includes(updates.role)) {
       throw { statusCode: 400, message: 'Invalid role value' };
+    }
+
+    // Safety guard: An admin cannot change another admin's role
+    if (user.role === 'Admin' && parseInt(userId, 10) !== parseInt(requesterUserId, 10)) {
+      throw { statusCode: 403, message: 'You cannot change the role of another administrator' };
     }
   }
 

@@ -185,7 +185,7 @@ const UserManagementPage = () => {
                   <td style={s.td}>{user.first_name} {user.last_name}</td>
                   <td style={s.td}>{user.email}</td>
                   <td style={s.td}>
-                    {user.user_id === currentUser?.user_id ? (
+                    {user.user_id === currentUser?.user_id || user.role === 'Admin' ? (
                       user.role
                     ) : (
                       <select
