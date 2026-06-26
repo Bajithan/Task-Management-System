@@ -29,11 +29,11 @@ app.use((req, res, next) => {
     // Relaxed CSP to allow Swagger UI resources to render
     res.setHeader(
       'Content-Security-Policy',
-      "default-src 'self'; frame-ancestors 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' data:;"
+      "default-src 'self'; frame-ancestors 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' data:; object-src 'none';"
     );
   } else {
     // Strict CSP for standard API JSON endpoints
-    res.setHeader('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'; sandbox;");
+    res.setHeader('Content-Security-Policy', "default-src 'none'; script-src 'none'; object-src 'none'; frame-ancestors 'none'; sandbox;");
   }
 
   // Essential API security headers

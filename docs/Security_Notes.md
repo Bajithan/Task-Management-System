@@ -19,8 +19,8 @@ This document outlines the security architecture and defensive measures implemen
 ### Content Security Policy (CSP) & HTTP Security Headers
 * **Mechanism:** Programmatically enforced via custom Express middleware on the backend and declared globally inside [staticwebapp.config.json](file:///c:/Users/Uni.ASUS/Documents/WEB%20NEW/Task-Management-System/frontend/staticwebapp.config.json) for the frontend static client.
 * **Configuration:** 
-  * API endpoints enforce a strict policy: `default-src 'none'; frame-ancestors 'none'; sandbox;`.
-  * Swagger UI paths (`/api/docs`) permit UI assets: `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' data:;`.
+  * API endpoints enforce a strict policy: `default-src 'none'; script-src 'none'; object-src 'none'; frame-ancestors 'none'; sandbox;`.
+  * Swagger UI paths (`/api/docs`) permit UI assets: `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' data:; object-src 'none';`.
   * Protects pages with standard security headers: `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `X-XSS-Protection: 1; mode=block`, and `Referrer-Policy: strict-origin-when-cross-origin`.
 * **Impact:** Safeguards the application against Cross-Site Scripting (XSS), stops UI redressing and clickjacking, blocks content sniffer actions, and passes standard automated security compliance audits.
 

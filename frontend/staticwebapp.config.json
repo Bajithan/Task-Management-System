@@ -4,7 +4,7 @@
     "exclude": ["/assets/*.{png,jpg,gif,svg,js,css}", "/favicon.ico"]
   },
   "globalHeaders": {
-    "Content-Security-Policy": "default-src 'self'; frame-ancestors 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://taskmanagement-backend-etgbh8czdzhyaucv.southeastasia-01.azurewebsites.net wss://taskmanagement-backend-etgbh8czdzhyaucv.southeastasia-01.azurewebsites.net; img-src 'self' data: https://rifdzskhuqurqvtganed.supabase.co;",
+    "Content-Security-Policy": "default-src 'self'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://taskmanagement-backend-etgbh8czdzhyaucv.southeastasia-01.azurewebsites.net wss://taskmanagement-backend-etgbh8czdzhyaucv.southeastasia-01.azurewebsites.net; img-src 'self' data: https://rifdzskhuqurqvtganed.supabase.co; object-src 'none';",
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
     "X-XSS-Protection": "1; mode=block",
