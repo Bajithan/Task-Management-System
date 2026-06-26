@@ -261,7 +261,7 @@ const s = {
   tableHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' },
   csvBtn: { padding: '7px 14px', backgroundColor: theme.color.accentSoft, color: theme.color.accent, border: 'none', borderRadius: theme.radius.sm, cursor: 'pointer', fontSize: '12.5px', fontWeight: 600, fontFamily: theme.font.body, transition: 'all 0.15s' },
 
-  tableWrap: { backgroundColor: theme.color.surface, borderRadius: theme.radius.sm, overflow: 'hidden', border: `1px solid ${theme.color.border}` },
+  tableWrap: { backgroundColor: theme.color.surface, borderRadius: theme.radius.sm, overflowX: 'auto', border: `1px solid ${theme.color.border}` },
   table: { width: '100%', borderCollapse: 'collapse' },
   th: { padding: '10px 14px', textAlign: 'left', backgroundColor: '#FAFAFB', fontSize: '11.5px', color: theme.color.inkSoft, fontWeight: 600, fontFamily: theme.font.body, borderBottom: `1px solid ${theme.color.border}` },
   tr: { borderBottom: `1px solid ${theme.color.border}`, transition: 'background-color 0.1s' },

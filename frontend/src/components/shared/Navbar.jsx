@@ -15,7 +15,7 @@ const Navbar = ({ onToggleMenu }) => {
   const initials = user ? `${user.first_name?.[0] || ''}${user.last_name?.[0] || ''}` : '';
 
   return (
-    <div style={s.navbar}>
+    <div style={s.navbar} className="navbar-container">
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <button
           className="mobile-toggle-btn"
@@ -34,13 +34,13 @@ const Navbar = ({ onToggleMenu }) => {
         >
           ☰
         </button>
-        <span style={s.brand}>Task Management System</span>
+        <span style={s.brand} className="navbar-brand">Task Management System</span>
       </div>
       <div style={s.right}>
         <NotificationBell />
         <div style={s.userBlock}>
           <div style={s.avatar}>{initials}</div>
-          <div style={s.userText}>
+          <div style={s.userText} className="navbar-user-text">
             <span style={s.userName}>{user?.first_name} {user?.last_name}</span>
             <span style={s.userRole}>{user?.role}</span>
           </div>

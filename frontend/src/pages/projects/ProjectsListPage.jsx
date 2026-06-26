@@ -231,7 +231,7 @@ const Modal = ({ title, subtitle, onClose, children }) => (
 
 const s = {
   page: { padding: '28px 28px', width: '100%', boxSizing: 'border-box' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' },
   title: { fontFamily: theme.font.body, fontSize: '22px', fontWeight: 700, color: theme.color.ink, margin: '0 0 4px 0', letterSpacing: '-0.01em' },
   subtitle: { fontSize: '13.5px', color: theme.color.inkSoft, margin: 0, fontFamily: theme.font.body },
   primaryBtn: { padding: '9px 16px', backgroundColor: theme.color.accent, color: '#fff', border: 'none', borderRadius: theme.radius.sm, cursor: 'pointer', fontSize: '13.5px', fontWeight: 500, fontFamily: theme.font.body, flexShrink: 0 },
@@ -244,7 +244,7 @@ const s = {
   cardTitle: { fontSize: '15px', fontWeight: 600, color: theme.color.ink, margin: '0 0 6px 0', fontFamily: theme.font.body },
   cardDesc: { fontSize: '13px', color: theme.color.inkSoft, margin: '0 0 14px 0', fontFamily: theme.font.body, lineHeight: 1.5 },
   statusPill: { fontSize: '12px', fontWeight: 600, padding: '3px 10px', borderRadius: '20px' },
-  tableWrap: { backgroundColor: theme.color.surface, borderRadius: theme.radius.md, border: `1px solid ${theme.color.border}`, overflow: 'hidden' },
+  tableWrap: { backgroundColor: theme.color.surface, borderRadius: theme.radius.md, border: `1px solid ${theme.color.border}`, overflowX: 'auto' },
   table: { width: '100%', borderCollapse: 'collapse' },
   th: { padding: '11px 16px', textAlign: 'left', backgroundColor: '#FAFAFB', fontSize: '11.5px', color: theme.color.inkSoft, fontWeight: 600, fontFamily: theme.font.body, borderBottom: `1px solid ${theme.color.border}` },
   tr: { borderBottom: `1px solid ${theme.color.border}` },

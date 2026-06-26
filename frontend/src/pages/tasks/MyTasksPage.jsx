@@ -190,6 +190,7 @@ const MyTasksPage = () => {
               currentUserId={user.user_id} 
               getAssigneeName={getAssigneeName}
               navigate={navigate}
+              isMobile={isMobile}
             />
             <BoardColumn 
               label="In Progress" 
@@ -198,6 +199,7 @@ const MyTasksPage = () => {
               currentUserId={user.user_id} 
               getAssigneeName={getAssigneeName}
               navigate={navigate}
+              isMobile={isMobile}
             />
             <BoardColumn 
               label="Completed" 
@@ -206,6 +208,7 @@ const MyTasksPage = () => {
               currentUserId={user.user_id} 
               getAssigneeName={getAssigneeName}
               navigate={navigate}
+              isMobile={isMobile}
             />
           </div>
         </>
@@ -221,8 +224,8 @@ const StatCard = ({ label, value, color }) => (
   </div>
 );
 
-const BoardColumn = ({ label, items, color, currentUserId, getAssigneeName, navigate }) => (
-  <div style={s.column}>
+const BoardColumn = ({ label, items, color, currentUserId, getAssigneeName, navigate, isMobile }) => (
+  <div style={{ ...s.column, minWidth: isMobile ? 'auto' : '280px', width: isMobile ? '100%' : 'auto' }}>
     <div style={{ ...s.columnHeader, borderTop: `3px solid ${color}` }}>
       <span>{label}</span>
       <span style={s.badge}>{items.length}</span>

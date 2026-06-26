@@ -15,11 +15,21 @@ const TasksPage = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
   const canUpdateStatus = (task) => {
     return user?.role === 'Admin' || !task.assigned_to || task.assigned_to === user?.user_id;
   };
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isMobile = windowWidth <= 768;
 
   useEffect(() => { fetchUsers(); }, []);
   useEffect(() => { fetchTasks(); }, [statusFilter, priorityFilter]);
@@ -142,9 +152,9 @@ const TasksPage = () => {
           </table>
         </div>
       ) : (
-        <div style={s.board}>
+        <div style={{ ...s.board, flexDirection: isMobile ? 'column' : 'row' }}>
           {[{ label: 'To Do', items: todo, color: theme.color.inkSoft }, { label: 'In Progress', items: inProgress, color: theme.color.accent }, { label: 'Completed', items: completed, color: theme.color.success }].map((col) => (
-            <div key={col.label} style={s.column}>
+            <div key={col.label} style={{ ...s.column, minWidth: isMobile ? 'auto' : '280px', width: isMobile ? '100%' : 'auto' }}>
               <div style={{ ...s.columnHeader, borderTop: `2px solid ${col.color}` }}>
                 <span>{col.label}</span><span style={s.badge}>{col.items.length}</span>
               </div>
@@ -173,7 +183,7 @@ const s = {
   toggleActive: { padding: '7px 16px', cursor: 'pointer', fontSize: '13px', color: '#fff', backgroundColor: theme.color.accent, fontFamily: theme.font.body, fontWeight: 500 },
   toolbar: { display: 'flex', gap: '10px', marginBottom: '18px' },
   select: { padding: '9px 12px', border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.sm, fontSize: '13.5px', fontFamily: theme.font.body, color: theme.color.ink },
-  tableWrap: { backgroundColor: theme.color.surface, borderRadius: theme.radius.md, border: `1px solid ${theme.color.border}`, overflow: 'hidden' },
+  tableWrap: { backgroundColor: theme.color.surface, borderRadius: theme.radius.md, border: `1px solid ${theme.color.border}`, overflowX: 'auto' },
   table: { width: '100%', borderCollapse: 'collapse' },
   th: { padding: '11px 16px', textAlign: 'left', backgroundColor: '#FAFAFB', fontSize: '11.5px', color: theme.color.inkSoft, fontWeight: 600, fontFamily: theme.font.body, borderBottom: `1px solid ${theme.color.border}` },
   tr: { borderBottom: `1px solid ${theme.color.border}` },

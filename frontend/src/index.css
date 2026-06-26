@@ -1,3 +1,7 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   font-family: "Inter", -apple-system, sans-serif;
@@ -57,9 +61,21 @@ body {
     -webkit-overflow-scrolling: touch;
     display: block;
   }
+
+  /* Mobile Navbar styles to prevent text overflow */
+  .navbar-container {
+    padding: 0 12px !important;
+  }
+  .navbar-brand {
+    font-size: 13px !important;
+  }
+  .navbar-user-text {
+    display: none !important;
+  }
 }
 
 /* Base toggle button hidden on desktop */
 .mobile-toggle-btn {
   display: none;
 }
+

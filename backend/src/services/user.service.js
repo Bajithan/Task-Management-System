@@ -4,6 +4,10 @@ const userModel = require('../models/user.model');
 const { sendWelcomeEmail } = require('../utils/email');
 
 const createUser = async ({ first_name, last_name, email, role }) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRegex.test(email)) {
+    throw { statusCode: 400, message: 'Invalid email format' };
+  }
   const emailLower = email.toLowerCase().trim();
   const existing = await userModel.findByEmail(emailLower);
   if (existing) throw { statusCode: 409, message: 'Email already in use' };
@@ -48,6 +52,10 @@ const updateUser = async (userId, updates) => {
   if (!user) throw { statusCode: 404, message: 'User not found' };
 
   if (updates.email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(updates.email)) {
+      throw { statusCode: 400, message: 'Invalid email format' };
+    }
     const emailLower = updates.email.toLowerCase().trim();
     if (emailLower !== user.email.toLowerCase().trim()) {
       const existing = await userModel.findByEmail(emailLower);

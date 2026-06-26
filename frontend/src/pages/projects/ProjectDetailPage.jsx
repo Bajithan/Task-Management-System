@@ -19,6 +19,16 @@ const ProjectDetailPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState('');
 
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isMobile = windowWidth <= 768;
+
   const canUpdateStatus = (task) => {
     return user?.role === 'Admin' || !task.assigned_to || task.assigned_to === user?.user_id;
   };
@@ -124,9 +134,9 @@ const ProjectDetailPage = () => {
           </table>
         </div>
       ) : (
-        <div style={s.board}>
+        <div style={{ ...s.board, flexDirection: isMobile ? 'column' : 'row' }}>
           {[{ label: 'To Do', items: todo, color: theme.color.inkSoft }, { label: 'In Progress', items: inProgress, color: theme.color.accent }, { label: 'Completed', items: completed, color: theme.color.success }].map((col) => (
-            <div key={col.label} style={s.column}>
+            <div key={col.label} style={{ ...s.column, minWidth: isMobile ? 'auto' : '280px', width: isMobile ? '100%' : 'auto' }}>
               <div style={{ ...s.columnHeader, borderTop: `2px solid ${col.color}` }}>
                 <span>{col.label}</span><span style={s.badge}>{col.items.length}</span>
               </div>
@@ -210,13 +220,13 @@ const s = {
   title: { fontSize: '19px', fontWeight: 700, color: theme.color.ink, margin: '0 0 6px 0', fontFamily: theme.font.body, letterSpacing: '-0.01em' },
   subtitle: { fontSize: '13.5px', color: theme.color.inkSoft, margin: 0, fontFamily: theme.font.body },
   statusPill: { fontSize: '12px', fontWeight: 600, padding: '4px 12px', borderRadius: '20px', flexShrink: 0 },
-  toolbar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' },
+  toolbar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' },
   viewToggle: { display: 'flex', backgroundColor: theme.color.surface, borderRadius: theme.radius.sm, overflow: 'hidden', border: `1px solid ${theme.color.border}` },
   toggle: { padding: '7px 16px', cursor: 'pointer', fontSize: '13px', color: theme.color.inkSoft, fontFamily: theme.font.body, fontWeight: 500 },
   toggleActive: { padding: '7px 16px', cursor: 'pointer', fontSize: '13px', color: '#fff', backgroundColor: theme.color.accent, fontFamily: theme.font.body, fontWeight: 500 },
   primaryBtn: { padding: '9px 16px', backgroundColor: theme.color.accent, color: '#fff', border: 'none', borderRadius: theme.radius.sm, cursor: 'pointer', fontSize: '13.5px', fontWeight: 500, fontFamily: theme.font.body },
   secondaryBtn: { padding: '9px 16px', backgroundColor: theme.color.surface, color: theme.color.inkSoft, border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.sm, cursor: 'pointer', fontSize: '13.5px', fontWeight: 500, fontFamily: theme.font.body },
-  tableWrap: { backgroundColor: theme.color.surface, borderRadius: theme.radius.md, border: `1px solid ${theme.color.border}`, overflow: 'hidden' },
+  tableWrap: { backgroundColor: theme.color.surface, borderRadius: theme.radius.md, border: `1px solid ${theme.color.border}`, overflowX: 'auto' },
   table: { width: '100%', borderCollapse: 'collapse' },
   th: { padding: '11px 16px', textAlign: 'left', backgroundColor: '#FAFAFB', fontSize: '11.5px', color: theme.color.inkSoft, fontWeight: 600, fontFamily: theme.font.body, borderBottom: `1px solid ${theme.color.border}` },
   tr: { borderBottom: `1px solid ${theme.color.border}` },
