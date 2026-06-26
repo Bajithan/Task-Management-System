@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth, getHomeRouteForRole } from './context/AuthContext';
 import LoginPage from './pages/auth/LoginPage';
@@ -21,9 +22,19 @@ import ProfilePage from './pages/dashboard/ProfilePage';
 import ForceResetPasswordPage from './pages/auth/ForceResetPasswordPage';
 
 const Layout = ({ children }) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <div style={{ display: 'flex', height: '100vh', width: '100%', overflow: 'hidden' }}>
-      <Sidebar />
+    <div style={{ display: 'flex', height: '100vh', width: '100%', overflow: 'hidden', position: 'relative' }}>
+      {sidebarOpen && (
+        <div 
+          className="sidebar-overlay" 
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      <div className={`app-sidebar ${sidebarOpen ? 'mobile-open' : ''}`}>
+        <Sidebar onClose={() => setSidebarOpen(false)} />
+      </div>
       <div style={{
         flex: '1 1 0%',
         minWidth: 0,
@@ -31,7 +42,7 @@ const Layout = ({ children }) => {
         flexDirection: 'column',
         overflow: 'hidden',
       }}>
-        <Navbar />
+        <Navbar onToggleMenu={() => setSidebarOpen(!sidebarOpen)} />
         <div style={{ flex: '1 1 0%', overflowY: 'auto', backgroundColor: '#F8F9FB' }}>
           {children}
         </div>

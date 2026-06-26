@@ -84,4 +84,32 @@ router.get('/task/:taskId', CommentController.getComments);
  */
 router.delete('/:commentId', CommentController.deleteComment);
 
+/**
+ * @swagger
+ * /api/comments/upload:
+ *   post:
+ *     summary: Upload a file attachment for a comment
+ *     tags: [Comments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Name of the file being uploaded
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/octet-stream:
+ *           schema:
+ *             type: string
+ *             format: binary
+ *     responses:
+ *       200:
+ *         description: File uploaded successfully
+ */
+router.post('/upload', express.raw({ type: '*/*', limit: '10mb' }), CommentController.uploadAttachment);
+
 module.exports = router;

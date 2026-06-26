@@ -3,15 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import { getTasks, updateTaskStatus } from '../../api/tasksApi';
 import usersApi from '../../api/usersApi';
 import { useWebSocket } from '../../hooks/useWebSocket';
+import { useAuth } from '../../context/AuthContext';
 import { theme, statusColor, priorityColor } from '../../styles/theme';
 
 const TasksPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [view, setView] = useState('list');
   const [tasks, setTasks] = useState([]);
   const [assignableUsers, setAssignableUsers] = useState([]);
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
+
+  const canUpdateStatus = (task) => {
+    return user?.role === 'Admin' || !task.assigned_to || task.assigned_to === user?.user_id;
+  };
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -67,19 +73,24 @@ const TasksPage = () => {
   const inProgress = tasks.filter((t) => t.status === 'In Progress');
   const completed = tasks.filter((t) => t.status === 'Completed');
 
-  const TaskCard = ({ task }) => (
-    <div style={s.taskCard} onClick={() => navigate(`/tasks/${task.task_id}`)}>
-      <p style={s.cardTitle}>{task.title}</p>
-      <PriorityTag value={task.priority} />
-      <p style={s.cardAssignee}>{getAssigneeName(task.assigned_to)}</p>
-      {task.due_date && <p style={s.cardDue}>Due {new Date(task.due_date).toLocaleDateString()}</p>}
-      <div style={s.cardActions} onClick={(e) => e.stopPropagation()}>
-        {task.status !== 'To Do' && <button style={s.moveBtn} onClick={() => handleStatusChange(task.task_id, 'To Do')}>← To Do</button>}
-        {task.status !== 'In Progress' && <button style={s.moveBtn} onClick={() => handleStatusChange(task.task_id, 'In Progress')}>In Progress</button>}
-        {task.status !== 'Completed' && <button style={s.moveBtn} onClick={() => handleStatusChange(task.task_id, 'Completed')}>Done →</button>}
+  const TaskCard = ({ task }) => {
+    const showActions = canUpdateStatus(task);
+    return (
+      <div style={s.taskCard} onClick={() => navigate(`/tasks/${task.task_id}`)}>
+        <p style={s.cardTitle}>{task.title}</p>
+        <PriorityTag value={task.priority} />
+        <p style={s.cardAssignee}>{getAssigneeName(task.assigned_to)}</p>
+        {task.due_date && <p style={s.cardDue}>Due {new Date(task.due_date).toLocaleDateString()}</p>}
+        {showActions && (
+          <div style={s.cardActions} onClick={(e) => e.stopPropagation()}>
+            {task.status !== 'To Do' && <button style={s.moveBtn} onClick={() => handleStatusChange(task.task_id, 'To Do')}>← To Do</button>}
+            {task.status !== 'In Progress' && <button style={s.moveBtn} onClick={() => handleStatusChange(task.task_id, 'In Progress')}>In Progress</button>}
+            {task.status !== 'Completed' && <button style={s.moveBtn} onClick={() => handleStatusChange(task.task_id, 'Completed')}>Done →</button>}
+          </div>
+        )}
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div style={s.page}>

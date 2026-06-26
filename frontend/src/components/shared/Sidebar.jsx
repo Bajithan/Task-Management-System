@@ -13,7 +13,7 @@ const allNavItems = [
   { label: 'Profile', path: '/profile', roles: ['Admin', 'Project Manager', 'Collaborator'] },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({ onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
@@ -34,7 +34,10 @@ const Sidebar = () => {
             <div
               key={item.path}
               style={{ ...s.navItem, ...(active ? s.navItemActive : {}) }}
-              onClick={() => navigate(item.path)}
+              onClick={() => {
+                navigate(item.path);
+                if (onClose) onClose();
+              }}
             >
               {item.label}
             </div>

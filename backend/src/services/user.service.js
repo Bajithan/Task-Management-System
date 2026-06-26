@@ -74,6 +74,13 @@ const deactivateUser = async (userId) => {
   return await userModel.updateUser(userId, { is_active: false });
 };
 
+const activateUser = async (userId) => {
+  const user = await userModel.findById(userId);
+  if (!user) throw { statusCode: 404, message: 'User not found' };
+  return await userModel.updateUser(userId, { is_active: true });
+};
+
+
 const updatePassword = async (userId, currentPassword, newPassword) => {
   const userSummary = await userModel.findById(userId);
   if (!userSummary) throw { statusCode: 404, message: 'User not found' };
@@ -126,6 +133,7 @@ module.exports = {
   getUserById,
   updateUser,
   deactivateUser,
+  activateUser,
   updatePassword,
   adminResetPassword,
 };

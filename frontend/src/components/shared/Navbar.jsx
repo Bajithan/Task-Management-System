@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import NotificationBell from '../notifications/NotificationBell';
 import { theme } from '../../styles/theme';
 
-const Navbar = () => {
+const Navbar = ({ onToggleMenu }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -16,7 +16,26 @@ const Navbar = () => {
 
   return (
     <div style={s.navbar}>
-      <span style={s.brand}>Task Management System</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <button
+          className="mobile-toggle-btn"
+          onClick={onToggleMenu}
+          style={{
+            fontSize: '22px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '4px',
+            color: theme.color.ink,
+            marginRight: '4px',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          ☰
+        </button>
+        <span style={s.brand}>Task Management System</span>
+      </div>
       <div style={s.right}>
         <NotificationBell />
         <div style={s.userBlock}>

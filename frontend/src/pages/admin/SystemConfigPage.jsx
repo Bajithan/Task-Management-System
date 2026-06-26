@@ -9,6 +9,15 @@ const SystemConfigPage = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  // Persisted settings configuration state
+  const [settings, setSettings] = useState({
+    debugLogs: false,
+    sessionDuration: '7d',
+    rateLimit: 100,
+    maintenanceMode: false
+  });
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
     const fetchConfig = async () => {
@@ -22,7 +31,51 @@ const SystemConfigPage = () => {
       }
     };
     fetchConfig();
+
+    // Load persisted settings
+    const saved = localStorage.getItem('system_override_settings');
+    if (saved) {
+      try {
+        setSettings(JSON.parse(saved));
+      } catch (e) {
+        console.error("Failed to parse local system settings", e);
+      }
+    }
   }, []);
+
+  const handleSaveSettings = (e) => {
+    e.preventDefault();
+    localStorage.setItem('system_override_settings', JSON.stringify(settings));
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 3000);
+  };
+
+  const exportToCSV = () => {
+    if (!data || !data.recentAuditLogs || data.recentAuditLogs.length === 0) return;
+    const headers = ['Log ID', 'Action', 'User ID', 'IP Address', 'User Agent', 'Timestamp'];
+    const rows = data.recentAuditLogs.map(log => [
+      log.log_id,
+      `"${log.action.replace(/"/g, '""')}"`,
+      log.user_id || 'N/A',
+      log.ip_address || 'N/A',
+      `"${(log.user_agent || 'N/A').replace(/"/g, '""')}"`,
+      new Date(log.created_at).toLocaleString()
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(r => r.join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `system_audit_logs_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   if (loading) return <LoadingSpinner />;
   if (error) return <div style={s.alertError}>{error}</div>;
@@ -30,7 +83,10 @@ const SystemConfigPage = () => {
   return (
     <div style={s.page}>
       <div style={s.header}>
-        <h1 style={s.title}>System configuration & security</h1>
+        <div>
+          <h1 style={s.title}>System configuration & security</h1>
+          <p style={s.subtitle}>Monitor diagnostic counts, verify encryption layers, adjust session details, and audit usage actions.</p>
+        </div>
         <button style={s.secondaryBtn} onClick={() => navigate('/users')}>
           Back to users
         </button>
@@ -59,7 +115,69 @@ const SystemConfigPage = () => {
       </div>
 
       <div style={s.section}>
-        <h2 style={s.sectionTitle}>Recent audit logs</h2>
+        <h2 style={s.sectionTitle}>System configurations (Admin overrides)</h2>
+        {saveSuccess && <div style={s.alertSuccess}>Settings updated and persisted successfully!</div>}
+        <form onSubmit={handleSaveSettings} style={s.settingsForm}>
+          <div style={s.formRow}>
+            <div style={s.formField}>
+              <label style={s.fieldLabel}>JWT Session Expiry Duration</label>
+              <select 
+                style={s.selectInput} 
+                value={settings.sessionDuration} 
+                onChange={(e) => setSettings({ ...settings, sessionDuration: e.target.value })}
+              >
+                <option value="1d">1 Day</option>
+                <option value="7d">7 Days</option>
+                <option value="30d">30 Days</option>
+              </select>
+            </div>
+            <div style={s.formField}>
+              <label style={s.fieldLabel}>API Rate Limit threshold (requests / 15m)</label>
+              <input 
+                type="number" 
+                style={s.textInput} 
+                value={settings.rateLimit} 
+                onChange={(e) => setSettings({ ...settings, rateLimit: Number(e.target.value) })}
+                min="1"
+              />
+            </div>
+          </div>
+          <div style={s.checkboxRow}>
+            <label style={s.checkboxLabel}>
+              <input 
+                type="checkbox" 
+                checked={settings.debugLogs} 
+                onChange={(e) => setSettings({ ...settings, debugLogs: e.target.checked })}
+                style={s.checkbox}
+              />
+              Enable verbose server-side debugger logging
+            </label>
+            <label style={s.checkboxLabel}>
+              <input 
+                type="checkbox" 
+                checked={settings.maintenanceMode} 
+                onChange={(e) => setSettings({ ...settings, maintenanceMode: e.target.checked })}
+                style={s.checkbox}
+              />
+              Enable Maintenance Mode (Restricted Write Actions)
+            </label>
+          </div>
+          <button type="submit" style={s.primaryBtn}>Save configurations</button>
+        </form>
+      </div>
+
+      <div style={s.section}>
+        <div style={s.tableHeader}>
+          <h2 style={{ ...s.sectionTitle, margin: 0 }}>Recent audit logs</h2>
+          <button 
+            style={s.csvBtn} 
+            onClick={exportToCSV}
+            disabled={!data?.recentAuditLogs || data.recentAuditLogs.length === 0}
+          >
+            📥 Export audit logs (CSV)
+          </button>
+        </div>
+        
         <div style={s.tableWrap}>
           <table style={s.table}>
             <thead>
@@ -109,25 +227,44 @@ const SecurityItem = ({ label, value }) => (
 
 const s = {
   page: { padding: '28px 28px', width: '100%', boxSizing: 'border-box' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' },
-  title: { fontFamily: theme.font.body, fontSize: '22px', fontWeight: 700, color: theme.color.ink, margin: 0, letterSpacing: '-0.01em' },
-  secondaryBtn: { padding: '8px 16px', backgroundColor: theme.color.surface, color: theme.color.accent, border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.sm, cursor: 'pointer', fontSize: '13.5px', fontWeight: 500, fontFamily: theme.font.body },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' },
+  title: { fontFamily: theme.font.body, fontSize: '22px', fontWeight: 700, color: theme.color.ink, margin: '0 0 6px 0', letterSpacing: '-0.015em' },
+  subtitle: { fontSize: '13.5px', color: theme.color.inkSoft, margin: 0, fontFamily: theme.font.body },
+  secondaryBtn: { padding: '8px 16px', backgroundColor: theme.color.surface, color: theme.color.accent, border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.sm, cursor: 'pointer', fontSize: '13.5px', fontWeight: 500, fontFamily: theme.font.body, transition: 'all 0.15s' },
   statsRow: { display: 'flex', gap: '14px', marginBottom: '24px', flexWrap: 'wrap' },
   statCard: { flex: '1 1 150px', backgroundColor: theme.color.surface, borderRadius: theme.radius.md, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: '6px', border: `1px solid ${theme.color.border}` },
-  statLabel: { fontSize: '12.5px', color: theme.color.inkSoft, fontFamily: theme.font.body },
-  statValue: { fontSize: '22px', fontWeight: 700, fontFamily: theme.font.body },
+  statLabel: { fontSize: '12px', fontWeight: 600, color: theme.color.inkSoft, textTransform: 'uppercase', letterSpacing: '0.04em', fontFamily: theme.font.body },
+  statValue: { fontSize: '26px', fontWeight: 700, fontFamily: theme.font.body },
   section: { backgroundColor: theme.color.surface, borderRadius: theme.radius.md, padding: '22px', marginBottom: '20px', border: `1px solid ${theme.color.border}` },
   sectionTitle: { fontSize: '15px', fontWeight: 600, color: theme.color.ink, marginBottom: '16px', marginTop: 0, fontFamily: theme.font.body },
-  securityGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '10px' },
-  securityItem: { border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.sm, padding: '12px 14px' },
+  securityGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' },
+  securityItem: { border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.sm, padding: '12px 14px', backgroundColor: theme.color.bg },
   securityItemTop: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' },
-  securityLabel: { fontSize: '13.5px', fontWeight: 500, color: theme.color.ink, fontFamily: theme.font.body },
+  securityLabel: { fontSize: '13.5px', fontWeight: 600, color: theme.color.ink, fontFamily: theme.font.body },
   securityValue: { fontSize: '12.5px', color: theme.color.inkSoft, fontFamily: theme.font.body },
   badgeActive: { backgroundColor: theme.color.successSoft, color: theme.color.success, padding: '2px 8px', borderRadius: '20px', fontSize: '10.5px', fontWeight: 600, fontFamily: theme.font.body },
+  
+  // Settings Form styles
+  settingsForm: { display: 'flex', flexDirection: 'column', gap: '16px' },
+  formRow: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' },
+  formField: { display: 'flex', flexDirection: 'column', gap: '6px' },
+  fieldLabel: { fontSize: '13px', fontWeight: 500, color: theme.color.ink, fontFamily: theme.font.body },
+  selectInput: { padding: '9px 12px', border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.sm, fontSize: '13.5px', fontFamily: theme.font.body, backgroundColor: '#FFF', outline: 'none', color: theme.color.ink },
+  textInput: { padding: '9px 12px', border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.sm, fontSize: '13.5px', fontFamily: theme.font.body, backgroundColor: '#FFF', outline: 'none', color: theme.color.ink },
+  checkboxRow: { display: 'flex', gap: '24px', flexWrap: 'wrap', marginTop: '4px' },
+  checkboxLabel: { display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: theme.color.inkSoft, fontFamily: theme.font.body, cursor: 'pointer' },
+  checkbox: { width: '16px', height: '16px', cursor: 'pointer' },
+  primaryBtn: { alignSelf: 'flex-start', padding: '9px 18px', backgroundColor: theme.color.accent, color: '#fff', border: 'none', borderRadius: theme.radius.sm, cursor: 'pointer', fontSize: '13.5px', fontWeight: 600, fontFamily: theme.font.body, transition: 'background-color 0.15s' },
+  alertSuccess: { backgroundColor: theme.color.successSoft, color: theme.color.success, padding: '10px 14px', borderRadius: theme.radius.sm, marginBottom: '16px', fontSize: '13.5px', fontFamily: theme.font.body, border: `1px solid ${theme.color.success}24` },
+
+  // Audit Logs table header styles
+  tableHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' },
+  csvBtn: { padding: '7px 14px', backgroundColor: theme.color.accentSoft, color: theme.color.accent, border: 'none', borderRadius: theme.radius.sm, cursor: 'pointer', fontSize: '12.5px', fontWeight: 600, fontFamily: theme.font.body, transition: 'all 0.15s' },
+
   tableWrap: { backgroundColor: theme.color.surface, borderRadius: theme.radius.sm, overflow: 'hidden', border: `1px solid ${theme.color.border}` },
   table: { width: '100%', borderCollapse: 'collapse' },
   th: { padding: '10px 14px', textAlign: 'left', backgroundColor: '#FAFAFB', fontSize: '11.5px', color: theme.color.inkSoft, fontWeight: 600, fontFamily: theme.font.body, borderBottom: `1px solid ${theme.color.border}` },
-  tr: { borderBottom: `1px solid ${theme.color.border}` },
+  tr: { borderBottom: `1px solid ${theme.color.border}`, transition: 'background-color 0.1s' },
   td: { padding: '10px 14px', fontSize: '13px', color: theme.color.ink, fontFamily: theme.font.body },
   tdMono: { padding: '10px 14px', fontSize: '12px', color: theme.color.inkSoft, fontFamily: theme.font.mono },
   empty: { padding: '20px', textAlign: 'center', color: theme.color.inkFaint, fontFamily: theme.font.body },

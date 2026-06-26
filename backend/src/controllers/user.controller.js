@@ -70,6 +70,26 @@ const deactivateUser = async (req, res, next) => {
     next(err);
   }
 };
+
+const activateUser = async (req, res, next) => {
+  try {
+    await userService.activateUser(req.params.id);
+    
+    // Trigger real-time account activation event
+    try {
+      const io = req.app.get('io');
+      const { emitSystemEvent } = require('../websocket/socket');
+      emitSystemEvent(io, req.params.id, 'account-activated', { message: 'Your account has been activated by an administrator.' });
+    } catch (err) {
+      console.error("Failed to trigger administrative activation notification:", err);
+    }
+
+    return successResponse(res, null, 'User activated');
+  } catch (err) {
+    next(err);
+  }
+};
+
 const getAssignableUsers = async (req, res, next) => {
   try {
     const userModel = require('../models/user.model');
@@ -120,6 +140,7 @@ module.exports = {
   createUser,
   updateUser,
   deactivateUser,
+  activateUser,
   getAssignableUsers,
   updateMe,
   adminResetPassword,

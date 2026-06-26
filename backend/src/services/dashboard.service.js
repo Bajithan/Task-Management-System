@@ -28,6 +28,7 @@ async function getSummary() {
       byPriority,
       projectProgress,
       weeklyCompletion,
+      overdueTasksList: overdueTasks,
     };
 
   } catch (error) {

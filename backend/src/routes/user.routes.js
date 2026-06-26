@@ -26,7 +26,7 @@ router.use(authenticate);
  *       200:
  *         description: Retrieve list of assignable users successfully
  */
-router.get('/assignable', allowRoles('Project Manager'), userController.getAssignableUsers);
+router.get('/assignable', allowRoles('Project Manager', 'Collaborator'), userController.getAssignableUsers);
 
 /**
  * @swagger
@@ -164,6 +164,27 @@ router.put('/:id', auditLog('UPDATE_USER'), userController.updateUser);
  *         description: User deactivated successfully
  */
 router.patch('/:id/deactivate', auditLog('DEACTIVATE_USER'), userController.deactivateUser);
+
+/**
+ * @swagger
+ * /api/users/{id}/activate:
+ *   patch:
+ *     summary: Activate a user account (Admin only)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: User activated successfully
+ */
+router.patch('/:id/activate', auditLog('ACTIVATE_USER'), userController.activateUser);
+
 
 /**
  * @swagger

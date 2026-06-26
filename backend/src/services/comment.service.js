@@ -1,9 +1,15 @@
 // backend/src/services/comment.service.js
 const CommentModel = require('../models/comment.model');
 
-const addComment = async (taskId, userId, text) => {
+const addComment = async (taskId, userId, text, attachmentUrl = null, fileName = null) => {
     // Passes the requested data down to the database model we just made
-    return await CommentModel.createComment({ text, task_id: taskId, user_id: userId });
+    return await CommentModel.createComment({ 
+        text, 
+        task_id: taskId, 
+        user_id: userId,
+        attachment_url: attachmentUrl,
+        file_name: fileName
+    });
 };
 
 const getComments = async (taskId) => {

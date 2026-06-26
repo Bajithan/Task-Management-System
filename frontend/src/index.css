@@ -12,3 +12,54 @@ body {
   box-sizing: border-box;
   min-height: 100vh;
 }
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  /* Sidebar responsive overlay drawer styling */
+  .app-sidebar {
+    position: fixed !important;
+    left: -224px;
+    top: 0;
+    bottom: 0;
+    z-index: 1000;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .app-sidebar.mobile-open {
+    left: 0 !important;
+  }
+
+  /* Overlay backdrop for open drawer */
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(2px);
+    z-index: 999;
+  }
+
+  /* Hamburger toggle visibility */
+  .mobile-toggle-btn {
+    display: flex !important;
+  }
+
+  /* Dashboard grids and generic layout grids stack vertically */
+  .responsive-grid, 
+  .dashboard-grid {
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+
+  /* Scrollable container for tables on small screens */
+  .table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    display: block;
+  }
+}
+
+/* Base toggle button hidden on desktop */
+.mobile-toggle-btn {
+  display: none;
+}

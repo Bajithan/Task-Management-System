@@ -6,7 +6,9 @@ const createComment = async (data) => {
         .insert([{
             text: data.text,
             task_id: data.task_id,
-            user_id: data.user_id
+            user_id: data.user_id,
+            attachment_url: data.attachment_url || null,
+            file_name: data.file_name || null
         }])
         .select()
         .single();
@@ -22,6 +24,8 @@ const findByTask = async (taskId) => {
             text,
             task_id,
             user_id,
+            attachment_url,
+            file_name,
             created_at,
             Users ( first_name, last_name )
         `)
@@ -35,6 +39,8 @@ const findByTask = async (taskId) => {
         text: c.text,
         task_id: c.task_id,
         user_id: c.user_id,
+        attachment_url: c.attachment_url,
+        file_name: c.file_name,
         created_at: c.created_at,
         user_name: c.Users ? `${c.Users.first_name} ${c.Users.last_name}` : 'Unknown User',
     }));

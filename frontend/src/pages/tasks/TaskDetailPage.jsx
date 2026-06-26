@@ -26,6 +26,13 @@ const TaskDetailPage = () => {
   const [success, setSuccess] = useState('');
   const [editForm, setEditForm] = useState(null);
 
+  const isAssignee = task?.assigned_to === user?.user_id;
+  const isUnassigned = !task?.assigned_to;
+  const canUpdateStatus =
+    user?.role === 'Admin' ||
+    isAssignee ||
+    (user?.role === 'Project Manager' && isUnassigned);
+
   useEffect(() => { fetchData(); }, [id]);
 
   const { socket } = useWebSocket();
@@ -153,12 +160,24 @@ const TaskDetailPage = () => {
         <div style={s.mainCol}>
           <div style={s.card}>
             <h2 style={s.cardTitle}>Update status</h2>
+            {!canUpdateStatus && (
+              <div style={s.statusNotice}>
+                {task.assigned_to
+                  ? '⚠️ Only the assigned person can update the status of this task.'
+                  : '⚠️ This task is unassigned. Only Project Managers can update its status.'
+                }
+              </div>
+            )}
             <div style={s.statusRow}>
               {STATUSES.map((st) => (
                 <button
                   key={st}
-                  style={task.status === st ? s.statusBtnActive : s.statusBtn}
-                  onClick={() => handleStatusChange(st)}
+                  style={{
+                    ...(task.status === st ? s.statusBtnActive : s.statusBtn),
+                    ...(!canUpdateStatus ? { cursor: 'not-allowed', opacity: 0.6 } : {})
+                  }}
+                  onClick={() => canUpdateStatus && handleStatusChange(st)}
+                  disabled={!canUpdateStatus}
                 >
                   {st}
                 </button>
@@ -185,7 +204,16 @@ const TaskDetailPage = () => {
                     </select>
                   </Field>
                   <Field label="Due date">
-                    <input type="date" style={s.input} value={editForm.due_date} onChange={(e) => setEditForm({ ...editForm, due_date: e.target.value })} />
+                    <input
+                      type="date"
+                      min={(() => {
+                        const d = new Date();
+                        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                      })()}
+                      style={s.input}
+                      value={editForm.due_date}
+                      onChange={(e) => setEditForm({ ...editForm, due_date: e.target.value })}
+                    />
                   </Field>
                 </div>
                 <Field label="Assign to">
@@ -285,6 +313,7 @@ const s = {
   alertError: { backgroundColor: theme.color.dangerSoft, color: theme.color.danger, padding: '10px 14px', borderRadius: theme.radius.sm, marginBottom: '16px', fontSize: '13.5px', fontFamily: theme.font.body },
   alertSuccess: { backgroundColor: theme.color.successSoft, color: theme.color.success, padding: '10px 14px', borderRadius: theme.radius.sm, marginBottom: '16px', fontSize: '13.5px', fontFamily: theme.font.body },
   loading: { textAlign: 'center', padding: '40px', color: theme.color.inkSoft, fontFamily: theme.font.body },
+  statusNotice: { display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: theme.color.warning, backgroundColor: theme.color.warningSoft, padding: '10px 14px', borderRadius: theme.radius.sm, marginBottom: '14px', fontFamily: theme.font.body, border: `1px solid ${theme.color.border}` },
 };
 
 export default TaskDetailPage;

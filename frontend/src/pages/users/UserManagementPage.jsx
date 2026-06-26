@@ -17,6 +17,7 @@ const UserManagementPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [form, setForm] = useState({ first_name: '', last_name: '', email: '', role: 'Collaborator' });
 
@@ -27,6 +28,7 @@ const UserManagementPage = () => {
       setUsers(res.data);
     } catch (err) {
       setError('Failed to load users');
+      setSuccess('');
     } finally {
       setLoading(false);
     }
@@ -42,16 +44,20 @@ const UserManagementPage = () => {
 
   const handleCreate = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
     setError('');
     setSuccess('');
+    setIsSubmitting(true);
     try {
-      const res = await usersApi.createUser(form);
-      setSuccess(`User created successfully. Temporary Password: ${res.data.tempPassword} (An email has also been sent)`);
+      await usersApi.createUser(form);
+      setSuccess('User created successfully. An email has been sent with their login credentials.');
       setShowModal(false);
       setForm({ first_name: '', last_name: '', email: '', role: 'Collaborator' });
       fetchUsers();
     } catch (err) {
       setError(err.response?.data?.error?.message || 'Failed to create user');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -68,13 +74,26 @@ const UserManagementPage = () => {
     }
   };
 
+  const handleActivate = async (userId) => {
+    if (!window.confirm('Activate this user account?')) return;
+    setError('');
+    setSuccess('');
+    try {
+      await usersApi.activateUser(userId);
+      setSuccess('User activated successfully');
+      fetchUsers();
+    } catch (err) {
+      setError('Failed to activate user');
+    }
+  };
+
   const handleResetPassword = async (userId) => {
     if (!window.confirm('Are you sure you want to reset this user\'s password? A new temporary password will be generated.')) return;
     setError('');
     setSuccess('');
     try {
       const res = await usersApi.resetUserPassword(userId);
-      setSuccess(`Password reset successfully for ${res.data.user.first_name}. Temporary Password: ${res.data.tempPassword} (Copy this now. An email has also been sent)`);
+      setSuccess(`Password reset successfully for ${res.data.user.first_name}. An email has been sent with their new credentials.`);
       fetchUsers();
     } catch (err) {
       setError(err.response?.data?.error?.message || 'Failed to reset password');
@@ -110,7 +129,16 @@ const UserManagementPage = () => {
           <option value="">All roles</option>
           {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
         </select>
-        <button style={s.primaryBtn} onClick={() => setShowModal(true)}>+ Create user</button>
+        <button
+          style={s.primaryBtn}
+          onClick={() => {
+            setError('');
+            setSuccess('');
+            setShowModal(true);
+          }}
+        >
+          + Create user
+        </button>
       </div>
 
       {loading ? (
@@ -151,6 +179,11 @@ const UserManagementPage = () => {
                           Deactivate
                         </button>
                       )}
+                      {!user.is_active && user.user_id !== currentUser?.user_id && (
+                        <button style={s.activateBtn} onClick={() => handleActivate(user.user_id)}>
+                          Activate
+                        </button>
+                      )}
                       {user.user_id === currentUser?.user_id && (
                         <span style={{ color: theme.color.inkFaint, fontSize: '13px', fontStyle: 'italic' }}>Current User</span>
                       )}
@@ -183,18 +216,31 @@ const UserManagementPage = () => {
                     value={form[field]}
                     onChange={(e) => setForm({ ...form, [field]: e.target.value })}
                     required
+                    disabled={isSubmitting}
                   />
                 </div>
               ))}
               <div style={s.field}>
                 <label style={s.label}>Role</label>
-                <select style={s.input} value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
+                <select style={s.input} value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} disabled={isSubmitting}>
                   {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
               <div style={s.modalActions}>
-                <button type="button" style={s.secondaryBtn} onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" style={s.primaryBtn}>Create user</button>
+                <button
+                  type="button"
+                  style={s.secondaryBtn}
+                  onClick={() => {
+                    setError('');
+                    setShowModal(false);
+                  }}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </button>
+                <button type="submit" style={s.primaryBtn} disabled={isSubmitting}>
+                  {isSubmitting ? 'Creating...' : 'Create user'}
+                </button>
               </div>
             </form>
           </div>
@@ -234,6 +280,7 @@ const s = {
   statusInactive: { display: 'inline-flex', alignItems: 'center', gap: '6px', color: theme.color.danger, fontWeight: 500, fontSize: '13px' },
   statusDot: { width: '6px', height: '6px', borderRadius: '50%' },
   deactivateBtn: { padding: '5px 11px', backgroundColor: theme.color.dangerSoft, color: theme.color.danger, border: 'none', borderRadius: theme.radius.sm, cursor: 'pointer', fontSize: '12.5px', fontWeight: 500, fontFamily: theme.font.body },
+  activateBtn: { padding: '5px 11px', backgroundColor: theme.color.successSoft, color: theme.color.success, border: 'none', borderRadius: theme.radius.sm, cursor: 'pointer', fontSize: '12.5px', fontWeight: 500, fontFamily: theme.font.body },
   resetBtn: { padding: '5px 11px', backgroundColor: theme.color.accentSoft, color: theme.color.accent, border: 'none', borderRadius: theme.radius.sm, cursor: 'pointer', fontSize: '12.5px', fontWeight: 500, fontFamily: theme.font.body },
   alertError: { backgroundColor: theme.color.dangerSoft, color: theme.color.danger, padding: '10px 14px', borderRadius: theme.radius.sm, marginBottom: '16px', fontSize: '13.5px', fontFamily: theme.font.body },
   alertSuccess: { backgroundColor: theme.color.successSoft, color: theme.color.success, padding: '10px 14px', borderRadius: theme.radius.sm, marginBottom: '16px', fontSize: '13.5px', fontFamily: theme.font.body },

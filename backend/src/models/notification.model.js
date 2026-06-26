@@ -1,16 +1,16 @@
 // backend/src/models/notification.model.js
-const supabase = require('../config/db'); 
+const supabase = require('../config/db');
 
 // 1. Create a new notification
 const createNotification = async (data) => {
     const { data: notification, error } = await supabase
         .from('Notifications')
-        .insert([{ 
-            message: data.message, 
-            user_id: data.user_id 
+        .insert([{
+            message: data.message,
+            user_id: data.user_id
         }])
         .select();
-        
+
     if (error) throw error;
     return notification[0];
 };
@@ -22,7 +22,7 @@ const findByUser = async (userId) => {
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false }); // Shows newest notifications at the top
-        
+
     if (error) throw error;
     return notifications;
 };
@@ -34,7 +34,7 @@ const markRead = async (notificationId) => {
         .update({ is_read: true }) // Changes the unread status
         .eq('notification_id', notificationId)
         .select();
-        
+
     if (error) throw error;
     return data[0];
 };
@@ -46,7 +46,7 @@ const markAllRead = async (userId) => {
         .update({ is_read: true })
         .eq('user_id', userId)
         .select();
-        
+
     if (error) throw error;
     return data;
 };

@@ -8,7 +8,7 @@ const { emitRealTimeEvent } = require('../websocket/socket');
 // Handle incoming request to add a comment
 const addComment = async (req, res) => {
     try {
-        const { taskId, task_id, text } = req.body; // Data sent from the frontend
+        const { taskId, task_id, text, attachmentUrl, fileName } = req.body; // Data sent from the frontend
         const resolvedTaskId = taskId ?? task_id;
         const userId = req.user.user_id; // The logged-in user's ID from auth payload
 
@@ -16,7 +16,7 @@ const addComment = async (req, res) => {
             return errorResponse(res, 'taskId is required', 400);
         }
 
-        const newComment = await CommentService.addComment(resolvedTaskId, userId, text);
+        const newComment = await CommentService.addComment(resolvedTaskId, userId, text, attachmentUrl, fileName);
 
         // Notify the task assignee and creator/PM (if not the commenter themselves!)
         try {
@@ -90,8 +90,45 @@ const deleteComment = async (req, res) => {
     }
 };
 
+// Handle uploading a raw file to Supabase storage
+const uploadAttachment = async (req, res) => {
+    try {
+        const fileBuffer = req.body;
+        const fileName = req.query.name;
+        const contentType = req.headers['content-type'];
+
+        if (!fileBuffer || !fileName) {
+            return errorResponse(res, 'File content and query parameter "name" are required', 400);
+        }
+
+        const supabase = require('../config/db');
+        const uniqueName = `${Date.now()}-${fileName}`;
+
+        const { data, error } = await supabase.storage
+            .from('comment-attachments')
+            .upload(uniqueName, fileBuffer, {
+                contentType,
+                duplex: 'half'
+            });
+
+        if (error) throw error;
+
+        const { data: urlData } = supabase.storage
+            .from('comment-attachments')
+            .getPublicUrl(uniqueName);
+
+        return successResponse(res, { 
+            url: urlData.publicUrl, 
+            name: fileName 
+        }, 'File uploaded successfully');
+    } catch (error) {
+        return errorResponse(res, error.message, 500);
+    }
+};
+
 module.exports = {
     addComment,
     getComments,
-    deleteComment
+    deleteComment,
+    uploadAttachment
 };

@@ -25,11 +25,11 @@ export const getComments = async (taskId) => {
 };
 
 // 2. Add a new comment
-export const createComment = async (taskId, text) => {
+export const createComment = async (taskId, text, attachmentUrl = null, fileName = null) => {
     const response = await fetch(API_URL, {
         method: 'POST',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ taskId, text }),
+        body: JSON.stringify({ taskId, text, attachmentUrl, fileName }),
     });
     if (!response.ok) throw new Error('Failed to create comment');
     const json = await response.json();
@@ -43,6 +43,22 @@ export const deleteComment = async (commentId) => {
         headers: getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to delete comment');
+    const json = await response.json();
+    return json.data;
+};
+
+// 4. Upload a raw file attachment
+export const uploadAttachment = async (file) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_URL}/upload?name=${encodeURIComponent(file.name)}`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': file.type || 'application/octet-stream'
+        },
+        body: file // Sends raw binary file
+    });
+    if (!response.ok) throw new Error('Failed to upload file attachment');
     const json = await response.json();
     return json.data;
 };

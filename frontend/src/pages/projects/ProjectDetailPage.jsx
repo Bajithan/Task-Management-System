@@ -4,11 +4,13 @@ import { getProjectById } from '../../api/projectsApi';
 import { getTasks, createTask, updateTaskStatus } from '../../api/tasksApi';
 import usersApi from '../../api/usersApi';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
+import { useAuth } from '../../context/AuthContext';
 import { theme, statusColor, priorityColor } from '../../styles/theme';
 
 const ProjectDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [project, setProject] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [assignableUsers, setAssignableUsers] = useState([]);
@@ -16,6 +18,10 @@ const ProjectDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState('');
+
+  const canUpdateStatus = (task) => {
+    return user?.role === 'Admin' || !task.assigned_to || task.assigned_to === user?.user_id;
+  };
 
   const [form, setForm] = useState({ title: '', description: '', priority: 'Medium', due_date: '', assigned_to: '' });
 
@@ -124,18 +130,23 @@ const ProjectDetailPage = () => {
               <div style={{ ...s.columnHeader, borderTop: `2px solid ${col.color}` }}>
                 <span>{col.label}</span><span style={s.badge}>{col.items.length}</span>
               </div>
-              {col.items.map((task) => (
-                <div key={task.task_id} style={s.taskCard} onClick={() => navigate(`/tasks/${task.task_id}`)}>
-                  <p style={s.cardTitle}>{task.title}</p>
-                  <PriorityTag value={task.priority} />
-                  <p style={s.cardAssignee}>{getAssigneeName(task.assigned_to)}</p>
-                  <div style={s.cardActions} onClick={(e) => e.stopPropagation()}>
-                    {task.status !== 'To Do' && <button style={s.moveBtn} onClick={() => handleStatusChange(task.task_id, 'To Do')}>← To Do</button>}
-                    {task.status !== 'In Progress' && <button style={s.moveBtn} onClick={() => handleStatusChange(task.task_id, 'In Progress')}>In Progress</button>}
-                    {task.status !== 'Completed' && <button style={s.moveBtn} onClick={() => handleStatusChange(task.task_id, 'Completed')}>Done →</button>}
+              {col.items.map((task) => {
+                const showActions = canUpdateStatus(task);
+                return (
+                  <div key={task.task_id} style={s.taskCard} onClick={() => navigate(`/tasks/${task.task_id}`)}>
+                    <p style={s.cardTitle}>{task.title}</p>
+                    <PriorityTag value={task.priority} />
+                    <p style={s.cardAssignee}>{getAssigneeName(task.assigned_to)}</p>
+                    {showActions && (
+                      <div style={s.cardActions} onClick={(e) => e.stopPropagation()}>
+                        {task.status !== 'To Do' && <button style={s.moveBtn} onClick={() => handleStatusChange(task.task_id, 'To Do')}>← To Do</button>}
+                        {task.status !== 'In Progress' && <button style={s.moveBtn} onClick={() => handleStatusChange(task.task_id, 'In Progress')}>In Progress</button>}
+                        {task.status !== 'Completed' && <button style={s.moveBtn} onClick={() => handleStatusChange(task.task_id, 'Completed')}>Done →</button>}
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ))}
         </div>
@@ -154,7 +165,18 @@ const ProjectDetailPage = () => {
                   <option value="Low">Low</option><option value="Medium">Medium</option><option value="High">High</option>
                 </select>
               </Field>
-              <Field label="Due date"><input type="date" style={s.input} value={form.due_date} onChange={(e) => setForm({ ...form, due_date: e.target.value })} /></Field>
+              <Field label="Due date">
+                <input
+                  type="date"
+                  min={(() => {
+                    const d = new Date();
+                    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                  })()}
+                  style={s.input}
+                  value={form.due_date}
+                  onChange={(e) => setForm({ ...form, due_date: e.target.value })}
+                />
+              </Field>
               <Field label="Assign to">
                 <select style={s.input} value={form.assigned_to} onChange={(e) => setForm({ ...form, assigned_to: e.target.value })}>
                   <option value="">Unassigned</option>
