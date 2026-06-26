@@ -12,4 +12,5 @@ module.exports = {
   EMAIL_PASS: process.env.EMAIL_PASS,
   CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:5173',
   NODE_ENV: process.env.NODE_ENV || 'development',
+  RATE_LIMIT_MAX: process.env.RATE_LIMIT_MAX ? parseInt(process.env.RATE_LIMIT_MAX, 10) : 2000,
 };

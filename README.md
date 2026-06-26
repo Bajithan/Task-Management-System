@@ -53,12 +53,13 @@ task-management-system/
 * **Shared Shells:** Navbar shell, Sidebar, `ProtectedRoute` wrapper, and `LoadingSpinner`.
 * **Contexts & Router:** `AuthContext` state controller, `App.jsx` route mappings, and `main.jsx`.
 
-#### DevOps:
+#### DevOps & Docs:
 * **Git:** GitHub repository setup with development branch rules.
 * **Containerization:** `Dockerfile` (backend & frontend) and `docker-compose.yml`.
 * **CI/CD:** Automated pipelines via GitHub Actions.
 * **Deployment:** Cloud environment deployment setups.
-* **Documentation:** Core `README.md` file.
+* **Documentation:** Core `README.md` file and Azure SWA router fallback mapping [staticwebapp.config.json](frontend/staticwebapp.config.json).
+* **Architecture Diagram:** [Deployment Architecture Diagram](docs/Deployment_Diagram.png).
 
 ---
 
@@ -71,8 +72,9 @@ task-management-system/
 * **Views:** `ProjectsListPage` and `ProjectDetailPage`.
 * **API Integrations:** `projectsApi.js`.
 
-#### Docs:
+#### Docs & Diagrams:
 * **Specs:** Swagger annotations on all project routes.
+* **Database Diagram:** Relational [Entity-Relationship (ER) Diagram](docs/ER_Diagram.png) mapping Supabase tables and foreign keys.
 
 ---
 
@@ -86,8 +88,9 @@ task-management-system/
 * **Views:** `TasksPage` (table layout), `KanbanBoardPage` (column board), and `TaskDetailPage`.
 * **API Integrations:** `tasksApi.js`.
 
-#### Docs:
+#### Docs & Diagrams:
 * **Specs:** Swagger annotations on all task routes.
+* **Workflow Diagram:** System [Activity Diagram](docs/Activity_Diagram.png) mapping task lifecycle states and flow transitions.
 
 ---
 
@@ -104,7 +107,7 @@ task-management-system/
 * **API Integrations:** `commentsApi.js` and `notificationsApi.js`.
 
 #### Docs:
-* **Specs:** Swagger annotations on comment and notification routes, and WebSocket event reference document.
+* **Specs:** Swagger annotations on comment and notification routes, and real-time Socket.io [WebSocket_Events.md](docs/WebSocket_Events.md) specifications.
 
 ---
 
@@ -119,8 +122,10 @@ task-management-system/
 * **Views:** `DashboardPage` (with analytical charts) and `ProfilePage`.
 * **API Integrations:** `dashboardApi.js`.
 
-#### Docs:
-* **Specs:** Swagger annotations on dashboard routes, Security Notes (OWASP mapping), Class Diagram mapping, and Test documentation.
+#### Docs & Diagrams:
+* **Specs:** Swagger annotations on dashboard routes and Test documentation.
+* **Security Specifications:** [Security_Notes.md](docs/Security_Notes.md) detailing security mitigations mapped to the OWASP Top 10 guidelines.
+* **Architecture Specs:** Backend structural [Class_Diagram.md](docs/Class_Diagram.md) outlining model, controller, route, and database services call flow.
 
 ---
 
@@ -182,6 +187,12 @@ Run the SQL queries in your Supabase SQL Editor to create the tables with the fo
    * `JWT_SECRET`: A secure signing key for JWT token hashing
    * `JWT_EXPIRES_IN`: JWT expiration window 
    * `CLIENT_URL`: Allowed cross-origin (CORS) frontend host address (default: `http://localhost:5173`)
+   * `NODE_ENV`: Set to `development` for local dev server, `production` for Azure
+   * `RATE_LIMIT_MAX`: API rate limit threshold (requests per 15 minutes, e.g. `2000`)
+   * `EMAIL_HOST`: SMTP server host (e.g., `smtp.gmail.com` for Gmail)
+   * `EMAIL_PORT`: SMTP connection port (typically `587` for TLS)
+   * `EMAIL_USER`: Sender email address used for dispatching messages
+   * `EMAIL_PASS`: Email account app password or security passcode
 5. Start the backend development server:
    ```bash
    npm run dev

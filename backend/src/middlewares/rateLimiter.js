@@ -1,9 +1,9 @@
 const rateLimit = require('express-rate-limit');
-const { NODE_ENV } = require('../config/env');
+const { NODE_ENV, RATE_LIMIT_MAX } = require('../config/env');
 
 const rateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes in milliseconds
-  max: NODE_ENV === 'development' ? 10000 : 100, // max 10000 requests per 15 minutes in dev, 100 in prod
+  max: NODE_ENV === 'development' ? 10000 : RATE_LIMIT_MAX, // max 10000 requests per 15 minutes in dev, 100 in prod
   standardHeaders: true,     // sends rate limit info in headers
   legacyHeaders: false,      // disables old rate limit headers
 
