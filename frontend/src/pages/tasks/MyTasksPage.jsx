@@ -48,7 +48,9 @@ const MyTasksPage = () => {
   }, [socket]);
 
   const fetchData = async () => {
-    setLoading(true);
+    if (tasks.length === 0) {
+      setLoading(true);
+    }
     try {
       // 1. Fetch tasks assigned directly to the current collaborator
       const { data: assignedTasks } = await getTasks({ assigned_to: user.user_id });

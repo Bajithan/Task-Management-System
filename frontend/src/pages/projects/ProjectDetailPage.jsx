@@ -36,7 +36,9 @@ const ProjectDetailPage = () => {
   const [form, setForm] = useState({ title: '', description: '', priority: 'Medium', due_date: '', assigned_to: '' });
 
   const fetchData = async () => {
-    setLoading(true);
+    if (!project) {
+      setLoading(true);
+    }
     try {
       const [projectRes, tasksRes, usersRes] = await Promise.all([
         getProjectById(id), getTasks({ project_id: id }), usersApi.getAssignableUsers(),

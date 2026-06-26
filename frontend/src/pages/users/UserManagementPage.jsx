@@ -21,10 +21,21 @@ const UserManagementPage = () => {
 
   const [form, setForm] = useState({ first_name: '', last_name: '', email: '', role: 'Collaborator' });
 
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [search]);
+
   const fetchUsers = async () => {
-    setLoading(true);
+    if (users.length === 0) {
+      setLoading(true);
+    }
     try {
-      const res = await usersApi.getUsers(search, roleFilter);
+      const res = await usersApi.getUsers(debouncedSearch, roleFilter);
       setUsers(res.data);
     } catch (err) {
       setError('Failed to load users');
@@ -34,7 +45,7 @@ const UserManagementPage = () => {
     }
   };
 
-  useEffect(() => { fetchUsers(); }, [search, roleFilter]);
+  useEffect(() => { fetchUsers(); }, [debouncedSearch, roleFilter]);
 
   const stats = useMemo(() => {
     const total = users.length;

@@ -21,7 +21,9 @@ const ProjectsListPage = () => {
   const [taskForm, setTaskForm] = useState({ title: '', description: '', priority: 'Medium', due_date: '', assigned_to: '' });
 
   const fetchProjects = async () => {
-    setLoading(true);
+    if (projects.length === 0) {
+      setLoading(true);
+    }
     try {
       const res = await getAllProjects();
       setProjects(res.data);
@@ -33,7 +35,9 @@ const ProjectsListPage = () => {
   };
 
   const fetchOtherTasks = async () => {
-    setLoading(true);
+    if (otherTasks.length === 0) {
+      setLoading(true);
+    }
     try {
       const [tasksRes, usersRes] = await Promise.all([
         getTasks({ no_project: true }),

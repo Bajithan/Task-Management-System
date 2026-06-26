@@ -60,7 +60,9 @@ const TasksPage = () => {
   };
 
   const fetchTasks = async () => {
-    setLoading(true);
+    if (tasks.length === 0) {
+      setLoading(true);
+    }
     try { const { data } = await getTasks({ status: statusFilter, priority: priorityFilter }); setTasks(data); }
     catch (err) { setError('Failed to load tasks'); }
     finally { setLoading(false); }
