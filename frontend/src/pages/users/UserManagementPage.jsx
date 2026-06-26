@@ -100,6 +100,19 @@ const UserManagementPage = () => {
     }
   };
 
+  const handleRoleChange = async (userId, newRole) => {
+    if (!window.confirm(`Are you sure you want to change this user's role to ${newRole}?`)) return;
+    setError('');
+    setSuccess('');
+    try {
+      await usersApi.updateUser(userId, { role: newRole });
+      setSuccess(`User role updated successfully to ${newRole}`);
+      fetchUsers();
+    } catch (err) {
+      setError(err.response?.data?.error?.message || 'Failed to update user role');
+    }
+  };
+
   return (
     <div style={s.page}>
       <div style={s.header}>
@@ -160,7 +173,23 @@ const UserManagementPage = () => {
                 <tr key={user.user_id} style={s.tr}>
                   <td style={s.td}>{user.first_name} {user.last_name}</td>
                   <td style={s.td}>{user.email}</td>
-                  <td style={s.td}>{user.role}</td>
+                  <td style={s.td}>
+                    {user.user_id === currentUser?.user_id ? (
+                      user.role
+                    ) : (
+                      <select
+                        style={s.roleSelect}
+                        value={user.role}
+                        onChange={(e) => handleRoleChange(user.user_id, e.target.value)}
+                      >
+                        {ROLES.map((r) => (
+                          <option key={r} value={r}>
+                            {r}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </td>
                   <td style={s.td}>
                     <span style={user.is_active ? s.statusActive : s.statusInactive}>
                       <span style={{ ...s.statusDot, backgroundColor: user.is_active ? theme.color.success : theme.color.danger }} />
@@ -270,6 +299,7 @@ const s = {
   toolbar: { display: 'flex', gap: '10px', marginBottom: '18px', flexWrap: 'wrap' },
   searchInput: { padding: '9px 12px', border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.sm, fontSize: '13.5px', flex: 1, minWidth: '220px', fontFamily: theme.font.body, outline: 'none' },
   select: { padding: '9px 12px', border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.sm, fontSize: '13.5px', fontFamily: theme.font.body, color: theme.color.ink },
+  roleSelect: { padding: '4px 8px', border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.sm, fontSize: '13px', fontFamily: theme.font.body, color: theme.color.ink, backgroundColor: theme.color.surface, cursor: 'pointer', outline: 'none' },
   tableWrap: { backgroundColor: theme.color.surface, borderRadius: theme.radius.md, border: `1px solid ${theme.color.border}`, overflowX: 'auto' },
   table: { width: '100%', borderCollapse: 'collapse' },
   th: { padding: '11px 16px', textAlign: 'left', backgroundColor: '#FAFAFB', fontSize: '12px', color: theme.color.inkSoft, fontWeight: 600, fontFamily: theme.font.body, borderBottom: `1px solid ${theme.color.border}` },

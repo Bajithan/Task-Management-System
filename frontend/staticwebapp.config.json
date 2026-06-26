@@ -2,5 +2,13 @@
   "navigationFallback": {
     "rewrite": "/index.html",
     "exclude": ["/assets/*.{png,jpg,gif,svg,js,css}", "/favicon.ico"]
+  },
+  "globalHeaders": {
+    "Content-Security-Policy": "default-src 'self'; frame-ancestors 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://taskmanagement-backend-etgbh8czdzhyaucv.southeastasia-01.azurewebsites.net wss://taskmanagement-backend-etgbh8czdzhyaucv.southeastasia-01.azurewebsites.net; img-src 'self' data: https://rifdzskhuqurqvtganed.supabase.co;",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "X-XSS-Protection": "1; mode=block",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload"
   }
 }

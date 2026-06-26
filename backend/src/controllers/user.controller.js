@@ -36,6 +36,13 @@ const createUser = async (req, res, next) => {
 
 const updateUser = async (req, res, next) => {
   try {
+    const targetUserId = parseInt(req.params.id, 10);
+    const requesterUserId = req.user.user_id;
+
+    if (req.body.role && targetUserId === requesterUserId) {
+      return errorResponse(res, 'You cannot modify your own role.', 400);
+    }
+
     const user = await userService.updateUser(req.params.id, req.body);
     
     // Trigger administrative update notification

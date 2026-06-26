@@ -51,6 +51,13 @@ const updateUser = async (userId, updates) => {
   const user = await userModel.findById(userId);
   if (!user) throw { statusCode: 404, message: 'User not found' };
 
+  if (updates.role) {
+    const allowedRoles = ['Admin', 'Project Manager', 'Collaborator'];
+    if (!allowedRoles.includes(updates.role)) {
+      throw { statusCode: 400, message: 'Invalid role value' };
+    }
+  }
+
   if (updates.email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(updates.email)) {
